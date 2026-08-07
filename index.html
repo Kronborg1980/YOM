@@ -1,1373 +1,1661 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your Opinion Matters · Smyril Line</title>
+<title>MS Norröna — onboard prebookings</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
+/* ==========================================================
+   SMYRIL LINE — Sherpa Blue #004A59 · Cutty Sark #5B7581 · white
+   ========================================================== */
 :root{
-  --bg:#0B1723; --card:#122130; --card2:#16283A; --line:rgba(226,166,75,.16);
-  --line2:rgba(255,255,255,.07);
-  --ink:#E8EEF4; --mut:#8FA3B3; --dim:#5F7486;
-  --brass:#E2A64B; --brass-d:#B9832F; --teal:#2FA8B8; --sherpa:#004A59;
-  --good:#46B08A; --ok:#7FBF6A; --warn:#E28B4B; --bad:#E05B4B;
-  --r:14px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  /* ---- COLOURS — change these six and the whole page follows ---- */
+  --brass:#E2A64B;       /* accent: active day, buttons, bar ends, flags */
+  --paper:#0B1723;       /* page background                             */
+  --card:#122130;        /* panels and cards                            */
+  --ink:#E9F1F7;         /* headings and the big numbers                */
+  --cutty:#90A9BC;       /* labels and secondary text                   */
+  --blue:#3E7FA8;        /* the cool end of the seating bars            */
+  /* -------------------------------------------------------------- */
+
+  --brass-deep:#C98A2E;
+  --brass-soft:rgba(226,166,75,.13);
+  --brass-lit:#F0C97D;
+  --card-2:#16293C;
+  --line:#1E374C;
+  --line-soft:#182B3D;
+  --faint:#6B8798;
+  --good:#56D6A0;
+  --warn:#FF8A6B;
+  --sans:'Plus Jakarta Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --r:16px;
+  --shadow:0 1px 2px rgba(0,0,0,.25), 0 16px 36px -24px rgba(0,0,0,.7);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.3), 0 22px 48px -26px rgba(0,0,0,.8);
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
 body{
-  background:var(--bg); color:var(--ink);
-  font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  font-size:15px; line-height:1.5; min-height:100vh; overflow-x:hidden;
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
 }
-body::before{
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-  background:
-    radial-gradient(900px 500px at 10% -10%, rgba(47,168,184,.13), transparent 60%),
-    radial-gradient(800px 500px at 95% 0%, rgba(226,166,75,.10), transparent 60%),
-    radial-gradient(700px 600px at 50% 110%, rgba(0,74,89,.25), transparent 60%);
-}
-.wrap{position:relative; z-index:1; max-width:1440px; margin:0 auto; padding:22px 22px 90px}
-.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.shell{max-width:1160px;margin:0 auto;padding:0 24px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--brass);outline-offset:2px;border-radius:4px}
+.hidden{display:none !important}
 
-/* ---------- header ---------- */
-header.top{display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-bottom:20px}
-.brandmark{display:flex; align-items:center; gap:14px}
-.logo{height:44px; width:auto; display:block}
-.logo-fb{width:44px;height:44px;border-radius:12px;background:linear-gradient(140deg,var(--sherpa),#0a2e38);
-  display:grid;place-items:center;border:1px solid var(--line)}
-h1{font-size:20px; font-weight:800; margin:0; letter-spacing:-.3px}
-h1 small{display:block; font-size:11.5px; font-weight:600; color:var(--brass); letter-spacing:2.2px; text-transform:uppercase; margin-bottom:2px}
-.top-actions{margin-left:auto; display:flex; gap:9px; flex-wrap:wrap}
-button, .btn{
-  font-family:inherit; font-size:13px; font-weight:600; color:var(--ink);
-  background:var(--card); border:1px solid var(--line2); border-radius:10px;
-  padding:9px 14px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:7px;
+/* ---------------- hero ---------------- */
+.hero{
+  position:relative;color:#fff;padding:26px 0 116px;overflow:hidden;
+  background:linear-gradient(150deg,#0A1826 0%, #12293D 52%, #0D2033 100%);
 }
-button:hover,.btn:hover{border-color:var(--brass); color:#fff; background:var(--card2)}
-button.primary{background:linear-gradient(135deg,var(--brass),var(--brass-d)); color:#1b1305; border-color:transparent}
-button.primary:hover{filter:brightness(1.08); color:#1b1305}
-button.ghost{background:transparent}
-button.sm{padding:6px 10px; font-size:12px; border-radius:8px}
-
-/* ---------- dropzone ---------- */
-.drop{
-  border:1.5px dashed rgba(226,166,75,.4); border-radius:20px; padding:54px 26px; text-align:center;
-  background:linear-gradient(180deg,rgba(18,33,48,.75),rgba(18,33,48,.35)); backdrop-filter:blur(6px);
-  transition:.2s; cursor:pointer;
+.hero::after{
+  content:'';position:absolute;inset:0;opacity:.5;pointer-events:none;
+  background:radial-gradient(820px 360px at 84% -14%, rgba(226,166,75,.20), transparent 68%);
 }
-.drop.hot{border-color:var(--brass); background:rgba(226,166,75,.09); transform:scale(1.005)}
-.drop h2{margin:14px 0 6px; font-size:21px}
-.drop p{margin:0 auto; max-width:620px; color:var(--mut); font-size:14px}
-.drop .ico{font-size:40px}
-.hint{color:var(--dim); font-size:12.5px; margin-top:16px}
+.hero .shell{position:relative;z-index:2}
+.masthead{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.brandmark{display:flex;align-items:center;gap:13px;min-height:44px}
+.brandmark img{max-height:44px;max-width:190px;display:block}
+.falcon{width:38px;height:38px;fill:#fff;flex:none}
+.wordmark{font-weight:800;font-size:15px;letter-spacing:.02em;line-height:1.15}
+.wordmark span{display:block;font-weight:500;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+.wordmark.with-logo{font-size:0;padding-left:13px;margin-left:2px;border-left:1px solid rgba(255,255,255,.28)}
+.wordmark.with-logo span{font-size:11px;color:rgba(255,255,255,.8);white-space:nowrap}
+/* If the official logo is dark and hard to see on the blue header,
+   uncomment the next line to render it in white.                  */
+/* .brandmark img{filter:brightness(0) invert(1)} */
+.masthead .acts{display:flex;gap:9px;flex-wrap:wrap}
 
-/* ---------- dataset chips ---------- */
-.dsbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px}
+.hero-copy{margin-top:52px;max-width:640px}
+.eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(255,255,255,.66);margin:0 0 12px;
+}
+.hero-copy h1{
+  font-size:clamp(34px,5.2vw,52px);font-weight:800;letter-spacing:-.03em;line-height:1.03;margin:0;
+}
+.hero-copy h1 em{font-style:normal;color:var(--brass-lit)}
+.lede{margin:16px 0 0;font-size:16.5px;line-height:1.6;color:rgba(255,255,255,.8);max-width:520px}
+.waves{color:var(--paper);position:absolute;left:0;right:0;bottom:-1px;width:100%;height:150px;display:block;z-index:1}
+
+/* ---------------- buttons ---------------- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px;
+  padding:10px 18px;border-radius:999px;border:1.5px solid transparent;white-space:nowrap;
+  transition:background .18s,border-color .18s,color .18s,transform .18s,box-shadow .18s;
+}
+.btn:active{transform:translateY(1px)}
+.on-dark .btn{border-color:rgba(255,255,255,.3);color:#fff}
+.on-dark .btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.5)}
+.on-dark .btn.primary{background:var(--brass);color:#0B1723;border-color:var(--brass);font-weight:700}
+.on-dark .btn.primary:hover{background:var(--brass-lit);border-color:var(--brass-lit)}
+.btn.solid{background:var(--brass);color:#0B1723;font-weight:700}
+.btn.solid:hover{background:var(--brass-lit);box-shadow:var(--shadow)}
+.btn.ghost{border-color:var(--line);background:var(--card);color:var(--brass)}
+.btn.ghost:hover{border-color:var(--brass);background:var(--brass-soft)}
+
+/* ---------------- import ---------------- */
+#dropzone{margin:-72px auto 70px;max-width:760px;position:relative;z-index:3}
+.dropcard{
+  background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:44px 40px;text-align:center;
+  border:1px solid var(--line);
+}
+.dropcard.hot{border-color:var(--brass);box-shadow:0 0 0 4px rgba(226,166,75,.16),var(--shadow-lift)}
+.dropcard h2{font-size:23px;font-weight:800;letter-spacing:-.02em;margin:18px 0 8px}
+.dropcard p{color:var(--cutty);max-width:460px;margin:0 auto 24px;font-size:14.5px}
+.dropicon{
+  width:60px;height:60px;border-radius:18px;margin:0 auto;display:grid;place-items:center;
+  background:var(--brass-soft);color:var(--brass);
+}
+.steps{
+  margin-top:34px;text-align:left;border-top:1px solid var(--line-soft);padding-top:26px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px 28px;
+}
+.step .n{
+  font-family:var(--mono);font-size:12px;color:var(--brass);background:var(--brass-soft);
+  width:26px;height:26px;border-radius:9px;display:grid;place-items:center;margin-bottom:9px;font-weight:600;
+}
+.step p{margin:0;font-size:13px;color:var(--cutty);line-height:1.5;max-width:none}
+.msg{margin-top:20px;font-size:13.5px;color:var(--cutty);font-family:var(--mono)}
+.msg.bad{color:var(--warn)}
+
+/* ---------------- day rail ---------------- */
+.overlap{margin-top:-76px;position:relative;z-index:3}
+.railcard{
+  background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);
+  padding:16px 18px;
+}
+.railhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 4px 12px}
+.railhead .t{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--cutty)}
+.railwrap{position:relative}
+.railwrap::after{
+  content:'';position:absolute;top:0;right:0;width:44px;height:100%;pointer-events:none;
+  background:linear-gradient(90deg,rgba(18,33,48,0),var(--card) 78%);border-radius:0 14px 14px 0;
+}
+.rail{display:flex;gap:9px;overflow-x:auto;padding:2px 44px 2px 2px;scroll-snap-type:x proximity}
+.rail::-webkit-scrollbar{height:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.daychip{
+  flex:none;min-width:96px;padding:11px 14px 12px;border-radius:14px;text-align:left;scroll-snap-align:start;
+  border:1.5px solid var(--line);background:var(--card-2);transition:all .18s;
+}
+.daychip:hover{border-color:var(--brass);background:var(--brass-soft)}
+.daychip .dow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cutty)}
+.daychip .dnum{font-family:var(--mono);font-size:17px;font-weight:500;margin-top:1px;letter-spacing:-.02em}
+.daychip .dcov{font-size:12px;color:var(--cutty);margin-top:3px}
+.daychip[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:#0B1723;box-shadow:var(--shadow)}
+.daychip[aria-pressed="true"] .dow{color:rgba(11,23,35,.68)}
+.daychip[aria-pressed="true"] .dcov{color:rgba(11,23,35,.82);font-weight:700}
+
+/* ---------------- day header + kpis ---------------- */
+.dayhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin:44px 0 20px}
+.dayhead h2{font-size:clamp(25px,3.6vw,34px);font-weight:800;letter-spacing:-.03em;margin:4px 0 0}
+.dayhead .meta{font-family:var(--mono);font-size:12.5px;color:var(--cutty)}
+.eyebrow.dark{color:var(--brass)}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.kpi .lbl{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--cutty)}
+.kpi .val{font-size:36px;font-weight:800;letter-spacing:-.035em;line-height:1.1;margin-top:8px;color:var(--ink)}
+.kpi .note{font-size:12.5px;color:var(--cutty);margin-top:3px}
+.kpi.hero-kpi{background:linear-gradient(140deg,var(--brass),var(--brass-deep));border-color:transparent}
+.kpi.hero-kpi .lbl{color:rgba(11,23,35,.66)}
+.kpi.hero-kpi .val{color:#0B1723}
+.kpi.hero-kpi .note{color:rgba(11,23,35,.75)}
+
+/* ---------------- filters ---------------- */
+.filterbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:32px 0 6px}
 .chip{
-  display:flex; align-items:center; gap:9px; background:var(--card); border:1px solid var(--line2);
-  border-radius:12px; padding:8px 11px; font-size:13px; cursor:pointer; transition:.15s;
+  font-size:13px;font-weight:600;padding:9px 15px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--card);color:var(--cutty);transition:all .18s;
 }
-.chip:hover{border-color:var(--line)}
-.chip.on{border-color:var(--brass); background:var(--card2); box-shadow:0 0 0 1px rgba(226,166,75,.25)}
-.chip .dot{width:10px;height:10px;border-radius:50%;flex:none}
-.chip .nm{font-weight:600}
-.chip .n{color:var(--mut); font-size:11.5px}
-.chip .x{color:var(--dim); font-weight:700; padding:0 2px}
-.chip .x:hover{color:var(--bad)}
-
-/* ---------- filters ---------- */
-.filters{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px;
-  background:rgba(18,33,48,.55); border:1px solid var(--line2); border-radius:14px; padding:11px 13px}
-.filters .lbl{font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--dim); font-weight:700}
-select, input[type=text], input[type=search]{
-  font-family:inherit; font-size:13px; color:var(--ink); background:#0E1C29;
-  border:1px solid var(--line2); border-radius:9px; padding:8px 10px; outline:none; max-width:260px;
+.chip:hover{border-color:var(--brass);color:var(--brass-lit)}
+.chip[aria-pressed="true"]{background:var(--brass-soft);border-color:var(--brass);color:var(--brass)}
+.search{
+  margin-left:auto;display:flex;align-items:center;gap:9px;background:var(--card);
+  border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;transition:border-color .18s;
 }
-select:focus, input:focus{border-color:var(--brass)}
-label.inline{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mut)}
-input[type=range]{accent-color:var(--brass); width:110px}
+.search:focus-within{border-color:var(--brass)}
+.search svg{color:var(--cutty);flex:none}
+.search input{border:0;background:none;outline:none;font:inherit;font-size:14px;width:220px;color:var(--ink)}
+.search input::placeholder{color:var(--faint)}
 
-/* ---------- tabs ---------- */
-nav.tabs{display:flex; gap:4px; flex-wrap:wrap; margin-bottom:20px; border-bottom:1px solid var(--line2); padding-bottom:0}
-nav.tabs button{
-  background:transparent; border:none; border-bottom:2px solid transparent; border-radius:8px 8px 0 0;
-  padding:10px 14px; color:var(--mut); font-weight:600; font-size:13.5px;
+/* ---------------- service sections ---------------- */
+.service{margin-top:46px}
+.service-head{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.svc-icon{
+  width:40px;height:40px;border-radius:13px;flex:none;display:grid;place-items:center;
+  background:var(--brass-soft);color:var(--brass);
 }
-nav.tabs button:hover{color:var(--ink); background:rgba(255,255,255,.03)}
-nav.tabs button.on{color:var(--brass); border-bottom-color:var(--brass); background:rgba(226,166,75,.06)}
-
-/* ---------- cards / grid ---------- */
-.grid{display:grid; gap:14px}
-.g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
-.g3{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.g2{grid-template-columns:repeat(auto-fit,minmax(420px,1fr))}
-.card{
-  background:linear-gradient(180deg,var(--card),rgba(18,33,48,.72)); border:1px solid var(--line2);
-  border-radius:var(--r); padding:18px; box-shadow:var(--shadow); position:relative; overflow:hidden;
+.service-head h3{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:0}
+.service-head .cnt{font-size:13px;color:var(--cutty);margin-top:1px}
+.service-head .tot{
+  margin-left:auto;text-align:right;font-weight:800;font-size:22px;letter-spacing:-.03em;color:var(--ink);
 }
-.card.accent::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--brass),transparent)}
-.card h3{margin:0 0 4px; font-size:14px; font-weight:700; letter-spacing:.2px}
-.card .sub{color:var(--mut); font-size:12px; margin:0 0 14px}
-.sect-title{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--brass);font-weight:700;margin:26px 0 12px}
-.kpi .val{font-size:32px; font-weight:800; letter-spacing:-1px; line-height:1.1; font-family:'IBM Plex Mono',monospace}
-.kpi .cap{font-size:11px; letter-spacing:1.6px; text-transform:uppercase; color:var(--dim); font-weight:700; margin-bottom:6px}
-.kpi .note{font-size:12px; color:var(--mut); margin-top:6px}
-.delta{font-size:12.5px; font-weight:700; font-family:'IBM Plex Mono',monospace}
-.up{color:var(--good)} .down{color:var(--bad)} .flat{color:var(--mut)}
+.service-head .tot small{display:block;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--cutty)}
 
-/* ---------- bars ---------- */
-.qrow{display:grid; grid-template-columns:1fr 250px 78px; gap:14px; align-items:center; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.05)}
-.qrow:last-child{border-bottom:none}
-.qname{font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.qname .n{color:var(--dim); font-weight:500; font-size:11.5px; margin-left:6px}
-.track{height:9px; border-radius:6px; background:rgba(255,255,255,.07); overflow:hidden; position:relative}
-.fill{height:100%; border-radius:6px; transition:width .5s cubic-bezier(.2,.8,.2,1)}
-.score{text-align:right; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px}
-.dist{display:flex; height:9px; border-radius:6px; overflow:hidden; background:rgba(255,255,255,.05)}
-.dist i{display:block; height:100%}
-.legend{display:flex; gap:12px; flex-wrap:wrap; font-size:11.5px; color:var(--mut); margin-top:12px}
-.legend span{display:flex; align-items:center; gap:5px}
-.legend b{width:10px;height:10px;border-radius:3px;display:block}
-
-/* multi bars (comparison) */
-.mbars{display:flex; flex-direction:column; gap:3px}
-.mbar{display:flex; align-items:center; gap:8px}
-.mbar .lb{font-size:10.5px; width:80px; color:var(--mut); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.mbar .track{flex:1}
-.mbar .sc{font-family:'IBM Plex Mono',monospace; font-size:11.5px; width:38px; text-align:right}
-
-/* ---------- tables ---------- */
-.tblwrap{overflow:auto; border-radius:12px; border:1px solid var(--line2); max-height:74vh}
-table{border-collapse:separate; border-spacing:0; width:100%; font-size:13px}
-th,td{padding:9px 11px; text-align:left; white-space:nowrap}
-thead th{
-  position:sticky; top:0; z-index:3; background:#0F1E2C; color:var(--mut); font-size:11px;
-  letter-spacing:1px; text-transform:uppercase; font-weight:700; border-bottom:1px solid var(--line2);
+.outletcard{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;
 }
-tbody tr:nth-child(even){background:rgba(255,255,255,.018)}
-tbody tr:hover{background:rgba(226,166,75,.06)}
-td.stick, th.stick{position:sticky; left:0; z-index:2; background:#101E2B; max-width:280px; overflow:hidden; text-overflow:ellipsis}
-thead th.stick{z-index:4}
-tbody tr:hover td.stick{background:#17293a}
-.cell{display:block; text-align:center; border-radius:7px; padding:6px 4px; font-family:'IBM Plex Mono',monospace;
-  font-weight:600; font-size:12.5px; color:#0B1723; min-width:52px}
-.cell.na{background:rgba(255,255,255,.05); color:var(--dim); font-weight:500}
-.num{font-family:'IBM Plex Mono',monospace; text-align:right}
-.pill{display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:700; font-family:'IBM Plex Mono',monospace}
+.outlet-head{
+  width:100%;text-align:left;display:flex;align-items:center;gap:13px;padding:15px 20px;
+  background:var(--card-2);transition:background .16s;
+}
+.outlet-head .ohead{flex:1;min-width:0}
+.outlet-head .oline{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.outlet-head .pills{gap:6px}
+.outlet-head .pill{background:rgba(233,241,247,.06)}
+.outlet-head .pill.ci{background:rgba(86,214,160,.13)}
+.outlet-head .pill.peak{background:var(--brass)}
+.outlet-head .dot{align-self:flex-start;margin-top:7px}
+.outlet-head:hover{background:#1B3247}
+.outletcard.open .outlet-head{border-bottom:1px solid var(--line-soft)}
+.outlet-head h4{margin:0;font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+.outlet-head .seats{font-size:12.5px;color:var(--cutty)}
+.outlet-head .oc{font-family:var(--mono);font-size:13px;color:var(--cutty);white-space:nowrap;text-align:right}
+.outlet-head .oc b{color:var(--ink);font-size:19px;font-weight:700;font-family:var(--sans);letter-spacing:-.02em}
+.outlet-head .ochev{color:var(--faint);transition:transform .2s;flex:none}
+.outletcard.open .outlet-head .ochev{transform:rotate(90deg);color:var(--brass)}
+.dot{width:7px;height:7px;border-radius:99px;background:var(--brass);flex:none}
 
-/* ---------- comments ---------- */
-.cmt{border:1px solid var(--line2); border-radius:12px; padding:14px; background:rgba(18,33,48,.6); margin-bottom:10px}
-.cmt .meta{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px; font-size:11.5px; color:var(--mut)}
-.cmt .txt{font-size:13.5px; line-height:1.6; white-space:pre-wrap}
-.tag{background:rgba(255,255,255,.06); border:1px solid var(--line2); border-radius:20px; padding:2px 9px; font-size:11px}
-.kw{display:inline-flex; gap:6px; align-items:center; background:rgba(226,166,75,.1); border:1px solid var(--line);
-  color:var(--brass); border-radius:20px; padding:4px 11px; font-size:12px; cursor:pointer; margin:0 6px 6px 0}
-.kw:hover{background:rgba(226,166,75,.2)}
-.kw b{font-family:'IBM Plex Mono',monospace; color:var(--ink); font-weight:600}
+/* the seating row — the thing the team actually reads */
+.slot{
+  width:100%;display:grid;grid-template-columns:78px 1fr 118px 26px;gap:18px;align-items:center;
+  padding:15px 20px;text-align:left;border-bottom:1px solid var(--line-soft);transition:background .16s;
+}
+.slot:last-of-type{border-bottom:0}
+.slot:hover{background:var(--card-2)}
+.slot .timechip{
+  font-family:var(--mono);font-size:16px;font-weight:600;letter-spacing:-.02em;
+  background:var(--brass-soft);color:var(--brass-lit);padding:8px 0;border-radius:11px;text-align:center;
+}
+.slot[aria-expanded="true"] .timechip{background:var(--brass);color:#0B1723}
+.track{height:7px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:9px;max-width:420px}
+.track span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--brass))}
+.pills{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.pill{
+  font-size:12px;font-weight:600;color:var(--cutty);background:var(--card-2);
+  padding:3px 10px;border-radius:999px;white-space:nowrap;
+}
+.pill b{color:var(--ink);font-weight:700}
+.pill.ci{background:rgba(86,214,160,.12);color:var(--good)}
+.pill.peak{background:var(--brass);color:#0B1723;font-weight:700}
+.covers{text-align:right}
+.covers .n{font-size:32px;font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--ink)}
+.covers .u{font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--cutty);margin-top:3px}
+.chev{color:var(--faint);transition:transform .2s;justify-self:end}
+.slot[aria-expanded="true"] .chev{transform:rotate(90deg);color:var(--brass)}
 
-.q{display:inline-grid; place-items:center; width:16px; height:16px; border-radius:50%;
-  border:1px solid var(--line); color:var(--brass); background:rgba(226,166,75,.10);
-  font-size:10.5px; font-weight:800; cursor:help; vertical-align:middle; margin-left:5px;
-  line-height:1; flex:none; font-family:'Plus Jakarta Sans',sans-serif; user-select:none}
-.q:hover{background:var(--brass); color:#0B1723; border-color:var(--brass)}
-.pop{position:fixed; z-index:300; max-width:340px; background:#16283A; border:1px solid var(--brass);
-  border-radius:12px; padding:13px 15px; box-shadow:0 16px 44px rgba(0,0,0,.55); font-size:13px;
-  line-height:1.55; display:none}
-.pop h4{margin:0 0 6px; font-size:13px; color:var(--brass); letter-spacing:.2px}
-.pop .ex{margin-top:9px; color:var(--mut); font-size:12px; border-top:1px solid var(--line2); padding-top:8px}
-.intro{color:var(--mut); font-size:13px; margin:-4px 0 16px; display:flex; align-items:center; gap:2px; flex-wrap:wrap}
-.ovl{position:fixed; inset:0; background:rgba(6,12,19,.78); backdrop-filter:blur(4px); z-index:250;
-  display:none; overflow:auto; padding:40px 20px}
-.ovl.on{display:block}
-.ovl .box{max-width:980px; margin:0 auto; background:var(--card); border:1px solid var(--line);
-  border-radius:18px; padding:26px; box-shadow:var(--shadow)}
-.gl{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin-top:16px}
-.gl .it{background:rgba(255,255,255,.03); border:1px solid var(--line2); border-radius:12px; padding:13px 15px}
-.gl .it b{color:var(--brass); font-size:13px; display:block; margin-bottom:5px}
-.gl .it p{margin:0; font-size:12.8px; line-height:1.55; color:var(--ink)}
-.gl .it .ex{margin-top:7px; font-size:11.8px; color:var(--mut)}
-.empty{color:var(--dim); text-align:center; padding:40px; font-size:14px}
-.badge{font-size:10.5px; letter-spacing:1px; text-transform:uppercase; font-weight:700; padding:3px 8px; border-radius:6px}
-.b-bad{background:rgba(224,91,75,.16); color:#f19183}
-.b-good{background:rgba(70,176,138,.16); color:#6fd3b0}
-.b-warn{background:rgba(226,139,75,.16); color:#f0ab73}
-.toast{position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
-  background:var(--card2); border:1px solid var(--brass); color:var(--ink); padding:12px 20px; border-radius:12px;
-  font-size:13.5px; font-weight:600; z-index:99; transition:.25s; pointer-events:none; box-shadow:var(--shadow)}
-.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
-.scroll-x{overflow-x:auto; padding-bottom:6px}
-details.fields{margin-top:10px}
-details.fields summary{cursor:pointer; color:var(--mut); font-size:12.5px}
-.fieldgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:6px; margin-top:12px}
-.fieldgrid label{display:flex; gap:8px; align-items:center; font-size:12.5px; color:var(--mut); background:rgba(255,255,255,.03);
-  padding:6px 9px; border-radius:8px}
-.fieldgrid input{accent-color:var(--brass)}
+/* guest list */
+.guests{padding:4px 20px 18px;background:#0E1B28;border-bottom:1px solid var(--line-soft)}
+.guests .gh{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--cutty);padding:14px 0 6px}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);border-radius:12px;overflow:hidden}
+th{
+  text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cutty);padding:11px 14px;background:var(--card-2);border-bottom:1px solid var(--line);
+}
+td{padding:11px 14px;border-bottom:1px solid var(--line-soft)}
+tr:last-child td{border-bottom:0}
+td.name{font-weight:600}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+td.code{font-family:var(--mono);font-size:12.5px;color:var(--cutty)}
+.hit td{background:rgba(226,166,75,.13)}
+.ci-badge{font-size:11.5px;font-weight:700;color:var(--good)}
 
+/* legend */
+.legend{
+  margin:52px 0 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;
+}
+.legend summary{font-size:14px;font-weight:700;color:var(--brass);cursor:pointer;list-style:none;display:flex;align-items:center;gap:9px}
+.legend summary::-webkit-details-marker{display:none}
+.legend summary::before{content:'?';display:grid;place-items:center;width:22px;height:22px;border-radius:99px;background:var(--brass-soft);font-size:12px}
+.legend dl{display:grid;grid-template-columns:130px 1fr;gap:9px 20px;margin:20px 0 0;font-size:14px}
+.legend dt{font-weight:700}
+.legend dd{margin:0;color:var(--cutty)}
+.legend .fine{margin:18px 0 0;font-size:13px;color:var(--cutty);border-top:1px solid var(--line-soft);padding-top:16px}
+.empty{text-align:center;color:var(--cutty);padding:50px 0}
+footer.sig{margin:56px 0 40px;padding-top:22px;border-top:1px solid var(--line);font-size:12.5px;color:var(--cutty);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,10px);z-index:20;
+  background:var(--brass);color:#0B1723;font-size:13.5px;font-weight:700;padding:12px 22px;border-radius:999px;
+  opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;box-shadow:var(--shadow-lift);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.printline{display:none}
+
+@media (max-width:820px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .outlet-head{
+    display:grid;grid-template-columns:auto 1fr auto;
+    grid-template-areas:'dot name total' 'pills pills pills';
+    gap:9px 10px;align-items:center;padding:14px 16px;
+  }
+  .outlet-head .ohead{display:contents}
+  .outlet-head .dot{grid-area:dot;align-self:center;margin-top:0}
+  .outlet-head .oline{grid-area:name;margin-bottom:0;flex-wrap:wrap;gap:2px 8px}
+  .outlet-head .pills{grid-area:pills}
+  .outlet-head .oc{grid-area:total}
+  .outlet-head .ochev{display:none}
+  .slot{grid-template-columns:auto 1fr;grid-template-areas:'time covers' 'meta meta';gap:12px 14px;padding:15px 16px;align-items:center}
+  .slot .timechip{grid-area:time;padding:7px 15px;font-size:15px}
+  .slot .covers{grid-area:covers}
+  .slot .meta{grid-area:meta}
+  .track{max-width:none;margin-bottom:10px}
+  .chev{display:none}
+  .covers .n{font-size:25px}
+  .slot .timechip{font-size:14px;padding:7px 0}
+  .search{margin-left:0;width:100%}
+  .search input{width:100%}
+  .shell{padding:0 16px}
+  .hero{padding-bottom:96px}
+  .legend dl{grid-template-columns:1fr;gap:3px 0}
+  .legend dd{margin-bottom:9px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
+
+
+/* ---------------- language switch, tabs, analysis ---------------- */
+.langswitch{display:inline-flex;border:1.5px solid rgba(255,255,255,.3);border-radius:999px;overflow:hidden}
+.langswitch button{
+  padding:9px 14px;font-size:12.5px;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.72);
+  transition:background .16s,color .16s;
+}
+.langswitch button[aria-pressed="true"]{background:var(--brass);color:#0B1723}
+.acts{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+
+.tabs{display:flex;gap:6px;margin:38px 0 -6px;border-bottom:1px solid var(--line)}
+.tab{
+  padding:12px 18px;font-size:14.5px;font-weight:700;color:var(--cutty);
+  border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:color .16s,border-color .16s;
+}
+.tab:hover{color:var(--ink)}
+.tab[aria-pressed="true"]{color:var(--brass);border-bottom-color:var(--brass)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:22px}
+.ctrls{display:flex;flex-wrap:wrap;gap:14px}
+.ctrls.filters{margin-top:16px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.ctrl{display:flex;flex-direction:column;gap:6px;min-width:170px}
+.ctrl.grow{flex:1;min-width:230px}
+.ctrl span{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cutty)}
+.ctrl select,.ctrl input{
+  font:inherit;font-size:14px;color:var(--ink);background:var(--card-2);
+  border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;outline:none;width:100%;
+}
+.ctrl select:focus,.ctrl input:focus{border-color:var(--brass)}
+.ctrl option{background:var(--card-2);color:var(--ink)}
+.hint{color:var(--cutty);font-size:12.5px;margin:16px 0 0;line-height:1.55}
+.hint.pad{margin:14px 2px 0}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card);margin-top:22px}
+table.an{width:100%;border-collapse:collapse;font-size:14px;background:none}
+table.an th{
+  position:sticky;top:0;background:var(--card-2);color:var(--cutty);text-align:left;
+  font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+table.an th.s{cursor:pointer;user-select:none}
+table.an th.s:hover{color:var(--brass)}
+table.an th.num,table.an td.num{text-align:right;font-family:var(--mono)}
+table.an td{padding:11px 14px;border-bottom:1px solid var(--line-soft)}
+table.an tbody tr:hover td{background:rgba(233,241,247,.03)}
+table.an td.lbl{font-weight:600}
+table.an td.strong{font-weight:800;font-size:16px;color:var(--ink);font-family:var(--sans)}
+table.an td .dim{color:var(--faint)}
+table.an tfoot td{border-top:1.5px solid var(--line);border-bottom:0;font-weight:700;background:var(--card-2)}
+table.an td.share,table.an th.share{width:158px;min-width:158px}
+table.an td.share{display:flex;align-items:center;gap:9px}
+table.an td.share i{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--cutty);min-width:46px;white-space:nowrap}
+.minibar{flex:1;height:7px;border-radius:99px;background:var(--line);overflow:hidden;min-width:52px}
+.minibar span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--brass))}
+table.an td.empty{padding:34px;text-align:center;color:var(--cutty)}
+@media (max-width:820px){
+  .tabs{margin-top:26px}
+  .ctrl{min-width:100%}
+  table.an td.share,table.an th.share{display:none}
+}
+
+/* choose which days to print */
+.printpanel{position:fixed;inset:0;z-index:70;display:none;place-items:center;background:rgba(6,13,21,.78);backdrop-filter:blur(4px)}
+.printpanel.show{display:grid}
+.ppcard{
+  width:min(620px,92vw);max-height:88vh;overflow:auto;background:var(--card);
+  border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-lift);padding:26px 28px;
+}
+.ppcard h3{margin:0;font-size:20px;font-weight:800;letter-spacing:-.02em}
+.ppcard p.sub2{margin:6px 0 18px;color:var(--cutty);font-size:14px}
+.ppdays{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:8px}
+.ppday{
+  display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:12px;text-align:left;
+  border:1.5px solid var(--line);background:var(--card-2);transition:all .16s;
+}
+.ppday:hover{border-color:var(--brass)}
+.ppday .box{
+  width:17px;height:17px;border-radius:5px;border:1.5px solid var(--faint);flex:none;
+  display:grid;place-items:center;font-size:11px;color:transparent;
+}
+.ppday[aria-pressed="true"]{border-color:var(--brass);background:var(--brass-soft)}
+.ppday[aria-pressed="true"] .box{background:var(--brass);border-color:var(--brass);color:#0B1723}
+.ppday .d{display:block;font-family:var(--mono);font-size:13.5px;line-height:1.2}
+.ppday .c{display:block;font-size:11.5px;color:var(--cutty)}
+.ppfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.ppfoot .count{color:var(--cutty);font-size:13.5px;margin-right:auto}
+.linkbtn{color:var(--brass);font-size:13.5px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+/* drop anywhere on the page */
+.dropveil{
+  position:fixed;inset:0;z-index:60;display:none;place-items:center;
+  background:rgba(6,13,21,.82);backdrop-filter:blur(4px);
+}
+.dropveil.show{display:grid}
+.veilcard{
+  border:2.5px dashed rgba(226,166,75,.65);border-radius:24px;padding:44px 56px;text-align:center;color:#fff;
+  background:rgba(18,41,61,.65);
+}
+.veilcard b{display:block;font-size:26px;font-weight:800;letter-spacing:-.02em;margin:14px 0 6px}
+.veilcard span{font-size:15px;color:rgba(255,255,255,.78)}
+.dropnote{margin-top:14px;font-size:13px;color:var(--cutty)}
+
+/* ---------------- print: one A4 page per day ---------------- */
+.printonly{display:none}
+@page{size:A4 portrait;margin:10mm 11mm}
 @media print{
-  body{background:#fff; color:#111}
-  body::before{display:none}
-  header.top .top-actions, nav.tabs, .filters, .dsbar, .drop, .kw, .q, .pop, .ovl{display:none !important}
-  .intro{color:#445}
-  .card{background:#fff; border:1px solid #ccd; box-shadow:none; break-inside:avoid}
-  .card h3,h1{color:#00323d}
-  .cell{color:#111}
-  td.stick,th.stick,thead th{background:#f2f5f7 !important; color:#334}
-  .tblwrap{max-height:none}
-  .qname,.score,.kpi .val{color:#111}
+  /* the printout stays on white paper — its own light palette */
+  :root{
+    --ink:#0F2434; --cutty:#5B7581; --line:#D2DFE5; --line-soft:#E7EEF1;
+    --card:#fff; --paper:#fff; --brand:#0E3B4C; --brand-050:#EEF4F6;
+  }
+  html,body{background:#fff;color:var(--ink)}
+  body>header.hero,body>section#dropzone,.overlap,.dayhead,.kpis,.filterbar,
+  #services,.legend,footer.sig,.toast,.dropveil,.printpanel,.tabs,#viewAnalysis,
+  .panel,.tablewrap,#anKpis,.hint,.langswitch{display:none !important}
+  .printonly{display:block}
+  .shell{max-width:none;padding:0}
+  #board{display:block !important}
+  #viewBoard{display:none !important}
+
+  .ps{font-size:9.2pt;line-height:1.35;color:var(--ink)}
+  .ps-page{break-before:page;break-inside:auto}
+  .ps-page:first-child{break-before:auto}
+
+  .ps-head{display:flex;align-items:center;gap:11px;padding-bottom:7px;border-bottom:2.4px solid var(--brand)}
+  .ps-head .falcon{width:26px;height:26px;fill:var(--brand)}
+  /* Any logo prints as a solid silhouette so a white logo still shows on paper.
+     Delete the filter below if your logo is dark and you want it in full colour. */
+  .ps-logo{height:26px;width:auto;max-width:150px;filter:brightness(0)}
+  .ps-head .who{font-weight:800;font-size:11pt;letter-spacing:-.01em;line-height:1.2}
+  .ps-head .who span{display:block;font-weight:600;font-size:7pt;letter-spacing:.2em;text-transform:uppercase;color:var(--cutty)}
+  .ps-head .when{margin-left:auto;text-align:right}
+  .ps-head .when b{display:block;font-size:13pt;font-weight:800;letter-spacing:-.02em}
+  .ps-head .when span{font-size:7.6pt;letter-spacing:.16em;text-transform:uppercase;color:var(--cutty)}
+
+  .ps-kpis{display:flex;gap:6px;margin:9px 0 10px}
+  .ps-kpi{flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+  .ps-kpi.fill{background:var(--brand);border-color:var(--brand);color:#fff}
+  .ps-kpi .k{font-size:6.8pt;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cutty)}
+  .ps-kpi.fill .k{color:rgba(255,255,255,.75)}
+  .ps-kpi .v{font-size:16pt;font-weight:800;letter-spacing:-.03em;line-height:1.15;color:var(--brand)}
+  .ps-kpi.fill .v{color:#fff}
+  .ps-kpi .s{font-size:7pt;color:var(--cutty)}
+  .ps-kpi.fill .s{color:rgba(255,255,255,.8)}
+
+  /* service = a ruled heading; the outlet is the loud divider */
+  .ps-svc{margin-bottom:11px;break-inside:avoid}
+  .ps-svc-bar{
+    display:flex;align-items:baseline;gap:10px;color:var(--brand);
+    padding:0 2px 3px;border-bottom:1.6px solid var(--brand);
+    font-size:8.6pt;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
+  }
+  .ps-svc-bar .r{margin-left:auto;letter-spacing:0;font-size:10.5pt}
+  .ps-svc-bar .r small{font-size:6.6pt;letter-spacing:.14em;color:var(--cutty);margin-left:4px}
+
+  /* every outlet is its own fenced block with a solid name bar */
+  .ps-out{
+    border:1.2px solid #AFC3CC;border-radius:7px;margin-top:6px;overflow:hidden;break-inside:avoid;
+  }
+  .ps-out + .ps-out{margin-top:8px}
+  .ps-out-h{
+    display:flex;align-items:center;background:var(--brand);color:#fff;padding:4px 10px;
+  }
+  .ps-out-h .o{font-weight:800;font-size:10pt;letter-spacing:-.01em}
+  .ps-out-h .n{margin-left:auto;font-weight:800;font-size:11pt}
+  .ps-out-h .n small{font-size:6.6pt;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-left:5px}
+  .ps-out-h .seats{font-size:7pt;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-left:9px}
+  table.ps-t tbody tr:nth-child(even) td{background:#F4F8FA}
+  table.ps-t{width:100%;border-collapse:collapse;font-size:9pt}
+  table.ps-t th{
+    font-size:6.6pt;letter-spacing:.14em;text-transform:uppercase;color:var(--cutty);
+    padding:2.5px 9px;border-bottom:1px solid var(--line-soft);background:none;text-align:left;font-weight:700;
+  }
+  table.ps-t td{padding:3px 9px;border-bottom:1px solid var(--line-soft)}
+  table.ps-t tr:last-child td{border-bottom:0}
+  table.ps-t td.t{font-family:var(--mono);font-weight:600;white-space:nowrap;width:52px}
+  table.ps-t th.n,table.ps-t td.n{text-align:right;font-family:var(--mono);width:42px}
+  table.ps-t th.big,table.ps-t td.big{text-align:right;width:74px}
+  table.ps-t td.big{font-weight:800;font-size:11pt;letter-spacing:-.02em;color:var(--brand);white-space:nowrap}
+  table.ps-t tr.peak td.big::after{content:' \2605';font-size:7pt;color:var(--cutty)}
+
+  .ps-foot{
+    margin-top:9px;padding-top:6px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;font-size:7.2pt;color:var(--cutty);
+  }
 }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header class="top">
-    <div class="brandmark">
-      <img class="logo" id="logo" alt="Smyril Line" style="display:none">
-      <div class="logo-fb" id="logoFallback">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#E2A64B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 17c1.5 1 3 1 4.5 0S10.5 16 12 17s3 1 4.5 0S19.5 16 21 17"/>
-          <path d="M4 13l8-9 8 9"/><path d="M12 4v9"/>
+<!-- ============ HERO ============ -->
+<header class="hero on-dark">
+  <div class="shell">
+    <div class="masthead">
+      <!-- LOGO — see LOGO_SOURCES in the script below. -->
+      <div class="brandmark">
+        <img id="brandLogo" alt="Smyril Line" class="hidden">
+        <svg class="falcon" id="falconMark" viewBox="0 0 64 64" role="img" aria-label="Smyril Line">
+          <path d="M32 8.5c2.4 0 4.1 1.9 4.3 4.3.15 1.9.4 3.7.8 5.3 6.2 2 13.6 7.4 20.6 16.6 1.3 1.7-.4 3.9-2.3 3.1-7.1-3-13.1-4.7-17.7-5.2.35 5.2-.15 10.3-1.5 15.3L32 57.5l-4.2-9.6c-1.35-5-1.85-10.1-1.5-15.3-4.6.5-10.6 2.2-17.7 5.2-1.9.8-3.6-1.4-2.3-3.1C13.3 25.5 20.7 20.1 26.9 18.1c.4-1.6.65-3.4.8-5.3C27.9 10.4 29.6 8.5 32 8.5z"/>
         </svg>
+        <div class="wordmark" id="wordmark">Smyril Line<span>MS Norröna</span></div>
       </div>
-      <h1><small>MS Norröna · Guest Insight</small>Your Opinion Matters</h1>
+      <div class="acts">
+        <div class="langswitch" role="group" aria-label="Language">
+          <button data-lang="da" id="langDa">DA</button>
+          <button data-lang="en" id="langEn">EN</button>
+        </div>
+        <span class="acts hidden" id="tools">
+          <button class="btn" id="btnNew" data-t="btnNew"></button>
+          <button class="btn" id="btnCopy" data-t="btnCopy"></button>
+          <button class="btn primary" id="btnPrint" data-t="btnPrint"></button>
+        </span>
+      </div>
     </div>
-    <div class="top-actions">
-      <button class="ghost" onclick="document.getElementById('fileInput').click()">＋ Importér skema</button>
-      <button class="ghost" id="btnHelp" title="Ordliste — hvad betyder alle tallene?">? Forklaring</button>
-      <button class="ghost" id="btnCopy" title="Kopierer et tekstresumé af det viste udsnit til udklipsholderen">⧉ Kopiér resumé</button>
-      <button class="ghost" onclick="window.print()" title="Printer den fane du står på — velegnet til ledelsesrapport">⎙ Print</button>
-      <button class="ghost" id="btnCsv" title="Downloader alle scorer pr. spørgsmål, nationalitet og aldersgruppe som semikolon-separeret CSV til Excel">↓ CSV</button>
+
+    <div class="hero-copy">
+      <p class="eyebrow" data-t="eyebrow"></p>
+      <h1><span data-t="h1a"></span><br><em data-t="h1b"></em></h1>
+      <p class="lede" id="subline"></p>
+      <p class="printline">Smyril Line · MS Norröna · <span data-t="printline"></span></p>
     </div>
-  </header>
+  </div>
+  <svg class="waves" viewBox="0 0 1440 150" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="currentColor" fill-opacity=".22" d="M0 58c150-34 300-38 450-12s300 62 450 44 260-56 390-70 150 4 150 4v128H0z"/>
+    <path fill="currentColor" fill-opacity=".55" d="M0 92c170-38 340-30 510 4s330 48 500 22 290-46 430-40v74H0z"/>
+    <path fill="currentColor" d="M0 122c200-32 400-22 600 10s360 26 540-2 200-20 300-12v34H0z"/>
+  </svg>
+</header>
 
-  <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple style="display:none">
+<!-- ============ IMPORT ============ -->
+<section id="dropzone" class="shell">
+  <div class="dropcard" id="dropcard">
+    <div class="dropicon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+    </div>
+    <h2 data-t="dropTitle"></h2>
+    <p data-t="dropBody"></p>
+    <button class="btn solid" id="btnPick" data-t="choose"></button>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" class="hidden">
+    <div class="steps">
+      <div class="step"><div class="n">1</div><p data-t="step1"></p></div>
+      <div class="step"><div class="n">2</div><p data-t="step2"></p></div>
+      <div class="step"><div class="n">3</div><p data-t="step3"></p></div>
+      <div class="step"><div class="n">4</div><p data-t="step4"></p></div>
+    </div>
+    <p class="dropnote" data-t="dropnote"></p>
+    <div class="msg" id="parseMsg"></div>
+  </div>
+</section>
 
-  <div id="dropzone" class="drop">
-    <div class="ico">📊</div>
-    <h2>Træk dine Your&nbsp;Opinion&nbsp;Matters-eksporter herind</h2>
-    <p>Slip én fil for en enkelt periode — eller flere filer på én gang for at sammenligne perioder, afgange eller år side om side. Understøtter .xlsx og .csv fra Jotform. Alt køres lokalt i din browser; intet uploades.</p>
-    <div class="hint">Klik for at vælge filer</div>
+<!-- ============ BOARD ============ -->
+<main id="board" class="hidden">
+  <div class="shell overlap">
+    <div class="railcard">
+      <div class="railhead">
+        <span class="t" data-t="railhead"></span>
+        <span class="t" id="fileMeta"></span>
+      </div>
+      <div class="railwrap"><div class="rail" id="rail"></div></div>
+    </div>
   </div>
 
-  <div id="app" style="display:none">
-    <div class="dsbar" id="dsbar"></div>
-    <div class="filters" id="filters"></div>
-    <nav class="tabs" id="tabs"></nav>
-    <main id="view"></main>
+  <div class="shell">
+    <div class="tabs" id="tabs">
+      <button class="tab" data-tab="board" data-t="tabBoard"></button>
+      <button class="tab" data-tab="analysis" data-t="tabAnalysis"></button>
+    </div>
+
+    <!-- ---- day view ---- -->
+    <div id="viewBoard">
+      <div class="dayhead">
+        <div>
+          <p class="eyebrow dark" data-t="serviceDay"></p>
+          <h2 id="dayTitle"></h2>
+        </div>
+        <div class="meta" id="outletTotals"></div>
+      </div>
+
+      <div class="kpis" id="kpis"></div>
+      <div class="filterbar" id="filterbar"></div>
+      <div id="services"></div>
+    </div>
+
+    <!-- ---- analysis view ---- -->
+    <div id="viewAnalysis" class="hidden">
+      <div class="dayhead">
+        <div>
+          <p class="eyebrow dark" data-t="analysisEyebrow"></p>
+          <h2 data-t="analysisTitle"></h2>
+        </div>
+        <div class="meta"><button class="btn ghost" id="btnCopyTable" data-t="copyTable"></button></div>
+      </div>
+
+      <div class="panel">
+        <div class="ctrls">
+          <label class="ctrl"><span data-t="scope"></span>
+            <select id="anScope"></select>
+          </label>
+          <label class="ctrl"><span data-t="groupBy"></span>
+            <select id="anDim"></select>
+          </label>
+          <label class="ctrl"><span data-t="splitBy"></span>
+            <select id="anSplit"></select>
+          </label>
+          <label class="ctrl grow"><span data-t="searchAll"></span>
+            <input id="anQ" type="search" placeholder="">
+          </label>
+        </div>
+        <div class="ctrls filters" id="anFilters"></div>
+        <p class="hint" id="anHint"></p>
+      </div>
+
+      <div class="kpis" id="anKpis"></div>
+      <div class="tablewrap"><table class="an" id="anTable"></table></div>
+      <p class="hint pad" id="anCols"></p>
+    </div>
+
+    <details class="legend">
+      <summary data-t="legendTitle"></summary>
+      <dl id="legendBody"></dl>
+      <p class="fine" data-t="legendFine"></p>
+    </details>
+
+    <footer class="sig">
+      <span>Smyril Line · MS Norröna · <span data-t="footer"></span></span>
+      <span id="footMeta"></span>
+    </footer>
+
+    <div class="printonly ps" id="printsheet"></div>
+  </div>
+</main>
+
+<div class="printpanel" id="printpanel" role="dialog" aria-label="Print">
+  <div class="ppcard">
+    <h3 data-t="printTitle"></h3>
+    <p class="sub2" data-t="printSub"></p>
+    <div class="ppdays" id="ppdays"></div>
+    <div class="ppfoot">
+      <span class="count" id="ppcount"></span>
+      <button class="linkbtn" id="ppAll" data-t="allDays"></button>
+      <button class="linkbtn" id="ppNone" data-t="clear"></button>
+      <button class="btn ghost" id="ppCancel" data-t="cancel"></button>
+      <button class="btn solid" id="ppGo" data-t="printBtn"></button>
+    </div>
   </div>
 </div>
 
-<div class="ovl" id="glossary"><div class="box">
-  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-    <h2 style="margin:0;font-size:20px">Ordliste — hvad betyder tallene?</h2>
-    <button class="sm" style="margin-left:auto" id="glClose">Luk</button>
+<div class="dropveil" id="dropveil" aria-hidden="true">
+  <div class="veilcard">
+    <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+    <b data-t="veilTitle"></b>
+    <span data-t="veilBody"></span>
   </div>
-  <p style="color:var(--mut);font-size:13.5px;margin:8px 0 0;max-width:70ch">Du kan også klikke på det lille <span class="q">?</span> ude i værktøjet — så får du forklaringen præcis der hvor du står.</p>
-  <div class="gl" id="glBody"></div>
-</div></div>
+</div>
 
-<div class="pop" id="pop"></div>
 <div class="toast" id="toast"></div>
 
 <script>
-/* ============================ SheetJS loader ============================ */
-(function(){
-  var urls=[
-    "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
-  ];
-  function load(i){
-    if(i>=urls.length){ console.warn("SheetJS kunne ikke hentes"); return; }
-    var s=document.createElement('script'); s.src=urls[i];
-    s.onerror=function(){ load(i+1); };
-    document.head.appendChild(s);
-  }
-  load(0);
-})();
-/* Smyril Line logo: lokal fil først, derefter officiel URL, ellers falkemærket */
-(function(){
-  var img=document.getElementById('logo'), fb=document.getElementById('logoFallback');
-  var srcs=["logo.svg","https://smyrilline.com/wp-content/themes/lunnar-smyrilline/images/logo.svg"], i=0;
-  img.onload=function(){ img.style.display='block'; fb.style.display='none'; };
-  img.onerror=function(){ i++; if(i<srcs.length) img.src=srcs[i]; };
-  img.src=srcs[0];
-})();
-
-/* ============================ CORE (analyse) ============================ */
-/* --- Alt herunder er ren logik: parsing, klassificering, statistik --- */
-var CORE = (function(){
-
-  var IGNORE_RX = /(^submission date$|^departure date$|^source$|workflow|^agent$|e-?mail|^enter your email|fornavn|efternavn|first name|last name|^name$|chance to win|newsletter|^id$|^ip$|submission id|^passengers?$|country of residence|age \(number\)|^outbound or return$)/i;
-  var NUM_BLACK = /(passenger|antal|number of|amount|qty|quantity|year|zip|postal|phone|price|dkk|eur)/i;
-
-  function norm(s){ return String(s==null?'':s).trim().replace(/\s+/g,' '); }
-  function key(s){ return norm(s).toLowerCase(); }
-  function isBlank(v){ return v===null||v===undefined||norm(v)===''; }
-  function num(v){
-    if(typeof v==='number') return v;
-    if(typeof v==='string' && /^-?\d+([.,]\d+)?$/.test(v.trim())) return parseFloat(v.trim().replace(',','.'));
-    return null;
-  }
-
-  /* Find header-rækken: den første række med flest udfyldte tekstceller */
-  function findHeaderRow(aoa){
-    var best=0, bestScore=-1;
-    for(var r=0; r<Math.min(8,aoa.length); r++){
-      var row=aoa[r]||[], filled=0, strs=0;
-      for(var c=0;c<row.length;c++){ if(!isBlank(row[c])){ filled++; if(typeof row[c]==='string') strs++; } }
-      var score = strs*2 + filled;
-      if(filled>=4 && score>bestScore && (aoa.length>r+1)){ bestScore=score; best=r; }
-    }
-    return best;
-  }
-
-  function toRecords(aoa){
-    var h = findHeaderRow(aoa);
-    var head = (aoa[h]||[]).map(norm);
-    var seen={}, cols=[];
-    head.forEach(function(x,i){
-      var name = x || ('Kolonne '+(i+1));
-      if(seen[name]!=null){ seen[name]++; name = name+' ('+seen[name]+')'; } else seen[name]=1;
-      cols.push(name);
-    });
-    var recs=[];
-    for(var r=h+1;r<aoa.length;r++){
-      var row=aoa[r]||[], any=false, o={};
-      for(var c=0;c<cols.length;c++){ var v=row[c]; if(!isBlank(v)){ any=true; o[cols[c]] = (typeof v==='string')? v.trim() : v; } }
-      if(any) recs.push(o);
-    }
-    return {columns:cols, rows:recs};
-  }
-
-  /* Klassificér hver kolonne: rating / kategori / tekst / ignoreret */
-  function classify(cols, rows){
-    var meta=[];
-    cols.forEach(function(c){
-      var vals=[], nums=0, total=0, uniq={}, uniqN=0, maxLen=0, hasNL=false;
-      for(var i=0;i<rows.length;i++){
-        var v=rows[i][c]; if(isBlank(v)) continue;
-        total++; vals.push(v);
-        var n=num(v); if(n!==null) nums++;
-        var s=String(v); if(s.length>maxLen) maxLen=s.length;
-        if(s.indexOf('\n')>=0) hasNL=true;
-        if(uniq[s]==null){ uniq[s]=0; uniqN++; } uniq[s]++;
-      }
-      var m={ col:c, k:key(c), label:c, short:shortLabel(c), n:total, uniq:uniqN, type:'ignore', multi:hasNL };
-      if(total===0){ meta.push(m); return; }
-
-      var numeric = nums/total >= .8;
-      var minV=Infinity,maxV=-Infinity;
-      if(numeric){ vals.forEach(function(v){ var n=num(v); if(n<minV)minV=n; if(n>maxV)maxV=n; }); }
-      var looksQ = /\?|^\s*\d+(\.\d+)?[a-zA-Z]?[.\s)]/.test(c) || /\brate\b|\bhow\b|overall|satisfaction|score/i.test(c);
-      var scaleHint = (c.match(/scale of \d+ to (\d+)/i)||[])[1];
-
-      if(numeric && minV>=1 && maxV<=10 && uniqN<=10){
-        m.scale = scaleHint? parseInt(scaleHint,10) : (maxV<=4?4:(maxV<=5?5:(maxV<=7?7:10)));
-        if(m.scale<maxV) m.scale=maxV;
-        m.autoScale = m.scale;
-        m.candidate = true;
-      }
-      if(m.candidate && !NUM_BLACK.test(c) && !IGNORE_RX.test(c) && looksQ){
-        m.type='rating';
-      } else if(IGNORE_RX.test(c)){
-        m.type='ignore';
-      } else if(maxLen>90 && uniqN/total>.6){
-        m.type='text';
-      } else if(uniqN<=40 && uniqN/total<.7){
-        m.type='cat';
-      } else if(maxLen>40){
-        m.type='text';
-      } else {
-        m.type='cat';
-      }
-      m.min=minV; m.max=maxV;
-      meta.push(m);
-    });
-    return meta;
-  }
-
-  function shortLabel(s){
-    var t = norm(s).replace(/^\s*\d+(?:\.\d+)*(?:\.?[a-zA-Z])?\s*[.):]?\s+/,'');
-    t = t.replace(/^(please rate the|please tell us your|please rate|how was the|how was|how were the|how were|were the|how pleased were you with the|how pleased were you with|how likely are you to|what is your|what was the|which|did you|where did you|when did you|what made you|why did you)\s+/i,'');
-    t = t.replace(/\s+on a scale of \d+ to \d+\s*$/i,'');
-    t = t.replace(/\?+$/,'').trim();
-    if(!t) t = norm(s);
-    return t.charAt(0).toUpperCase()+t.slice(1);
-  }
-
-  /* Statistik for ét rating-spørgsmål på et sæt rækker */
-  function stat(rows, col, scale){
-    var sum=0,n=0,dist={},low=0,top=0;
-    for(var i=0;i<rows.length;i++){
-      var v=num(rows[i][col]); if(v===null) continue;
-      n++; sum+=v; dist[v]=(dist[v]||0)+1;
-      if(v<=2) low++;
-      if(v>=scale) top++;
-    }
-    if(!n) return null;
-    var avg=sum/n;
-    return { n:n, avg:avg, dist:dist, index:(avg-1)/(scale-1)*100, low:low/n*100, top:top/n*100, scale:scale };
-  }
-
-  /* Samlet indeks pr. respondent (gennemsnit af alle normaliserede ratings) */
-  function overallIndex(rows, ratings){
-    var sum=0,n=0;
-    for(var i=0;i<rows.length;i++){
-      var s=0,c=0;
-      for(var j=0;j<ratings.length;j++){
-        var v=num(rows[i][ratings[j].col]); if(v===null) continue;
-        s += (v-1)/(ratings[j].scale-1)*100; c++;
-      }
-      if(c){ sum+=s/c; n++; }
-    }
-    return n? {index:sum/n, n:n} : null;
-  }
-
-  function respondentIndex(row, ratings, minCount){
-    var s=0,c=0;
-    for(var j=0;j<ratings.length;j++){
-      var v=num(row[ratings[j].col]); if(v===null) continue;
-      s += (v-1)/(ratings[j].scale-1)*100; c++;
-    }
-    return c && c>=(minCount||1)? s/c : null;
-  }
-
-  /* Split multi-select-svar (Jotform bruger linjeskift) */
-  function splitVals(v){
-    if(isBlank(v)) return [];
-    return String(v).split(/\r?\n/).map(function(x){return x.trim();}).filter(function(x){return x.length;});
-  }
-
-  function groupBy(rows, col, multi){
-    var g={};
-    for(var i=0;i<rows.length;i++){
-      var v=rows[i][col]; if(isBlank(v)) continue;
-      var parts = multi? splitVals(v) : [norm(v)];
-      for(var p=0;p<parts.length;p++){
-        (g[parts[p]] = g[parts[p]] || []).push(rows[i]);
-      }
-    }
-    return g;
-  }
-
-  return { toRecords:toRecords, classify:classify, stat:stat, overallIndex:overallIndex,
-           respondentIndex:respondentIndex, groupBy:groupBy, splitVals:splitVals, num:num,
-           norm:norm, key:key, isBlank:isBlank, shortLabel:shortLabel, findHeaderRow:findHeaderRow };
-})();
-if(typeof module!=='undefined') module.exports = CORE;
-</script>
-
-<script>
-/* ============================ APP ============================ */
-var DS = [];              // datasæt
-var ACTIVE = 0;
-var TAB = 'overblik';
-var MINN = 5;
-var FILTERS = {};
-var HIDDEN = {};          // skjulte rating-kolonner (key -> true)
-var COLORS = ['#E2A64B','#2FA8B8','#8E7CC3','#46B08A','#E05B4B','#7FBF6A','#D98CB3','#5B9BD5'];
-
-/* ---------------- Forklaringer ---------------- */
-var HELP = {
- besvarelser:{t:'Besvarelser',d:'Antal udfyldte skemaer i det udsnit du kigger på lige nu. Har du sat et filter, tælles kun dem der matcher — tallet i filterbjælken viser altid udsnit ud af hele filen.'},
- indeks:{t:'Tilfredshedsindeks (0–100)',d:'Alle svar regnes om til den samme målestok, så et 1–4-spørgsmål kan sammenlignes direkte med et 1–5-spørgsmål. Laveste svar = 0, højeste = 100.',ex:'Eksempel: 4 ud af 5 = 75. 3 ud af 4 = 67.'},
- samlet:{t:'Samlet tilfredshedsindeks',d:'Ét tal for den samlede oplevelse: gennemsnittet af alle vurderingsspørgsmål omregnet til 0–100. Hvilke spørgsmål der tælles med kan du selv styre under «Vurderingsspørgsmål & skalaer» i filterbjælken.'},
- gns:{t:'Gennemsnit',d:'Det rå gennemsnit af de karakterer gæsterne gav, på spørgsmålets egen skala. Det lille tal efter skråstregen fortæller hvor mange trin skalaen har.'},
- skala:{t:'Skala',d:'Hvor mange trin spørgsmålet har. Skemaet blander 1–4 og 1–5, og derfor vises skalaen ud for hvert tal — ellers ville 3,6 ud af 4 se dårligere ud end 3,6 ud af 5. Skalaen gættes ud fra svarene og kan rettes i filterbjælken.'},
- n:{t:'n = antal svar',d:'Hvor mange der faktisk har svaret på netop det spørgsmål eller er i netop den gruppe. Ikke alle svarer på alt. Jo lavere n, jo mere usikkert er tallet.'},
- kritiske:{t:'Kritiske svar',d:'Andelen der gav 1 eller 2 — altså decideret utilfredse. Et pænt gennemsnit kan sagtens skjule en lille gruppe meget utilfredse gæster, og det er ofte dem der skriver anmeldelser.'},
- top:{t:'Topkarakter',d:'Andelen der gav den højeste mulige karakter. Viser hvor mange der er direkte begejstrede — ikke bare tilfredse.'},
- fordeling:{t:'Svarfordeling',d:'Farvebjælken viser hvordan svarene fordeler sig fra 1 (rød) til højeste karakter (grøn). To spørgsmål kan have samme gennemsnit og alligevel se helt forskellige ud: det ene jævnt middelmådigt, det andet elsket af halvdelen og hadet af resten.'},
- utilfredse:{t:'Utilfredse gæster',d:'Gæster hvis samlede indeks er under 50 — de har i gennemsnit ligget under midten af skalaen. Kun besvarelser med mindst tre besvarede spørgsmål tælles med, så en enkelt sur afkrydsning ikke udløser alarm.'},
- minn:{t:'Min. svar pr. gruppe',d:'Grupper med færre besvarelser end dette skjules eller tones ned. Små grupper svinger vildt — 2 sure gæster ud af 3 er ikke en tendens, det er tilfældigheder. Skru op for sikrere tal, ned for at se de små markeder.'},
- delta:{t:'Afvigelse (Δ)',d:'Forskellen i forhold til sammenligningsgrundlaget: totalen for hele udsnittet, eller det første datasæt når du sammenligner perioder. Grøn = bedre end sammenligningen, rød = dårligere.'},
- heatmap:{t:'Varmekort',d:'Hver række er et spørgsmål, hver kolonne en gruppe. Tallet er gennemsnittet, farven er indekset: grønt = stærkt, rødt = svagt. Rækkerne står med det svageste spørgsmål øverst. Hold musen over en celle for at se antal svar og afvigelse fra totalen.'},
- udsving:{t:'Segmentudsving',d:'Steder hvor én bestemt gruppe scorer mærkbart lavere end totalen på et bestemt spørgsmål (mindst 0,35 point under). Det er her et problem rammer nogen særligt hårdt — i stedet for at ramme alle lidt.',ex:'Fx: færøske gæster om «value for money» — samme skib, meget forskellig oplevelse.'},
- filtre:{t:'Filtre',d:'Skærer datasættet ned til et udsnit, fx kun tyske gæster eller kun pakkerejser. Alle faner, tal, grafer, eksport og resumé følger med med det samme.'},
- felter:{t:'Vurderingsspørgsmål & skalaer',d:'Her bestemmer du hvilke spørgsmål der tæller med i det samlede indeks, og hvilken skala hvert spørgsmål bruger. Slå fx spørgsmål fra som ikke rigtig handler om tilfredshed — eller ret skalaen hvis den er gættet forkert.'},
- datasaet:{t:'Datasæt',d:'Hver importeret fil er ét datasæt. Klik for at gøre et aktivt — alle faner viser det aktive. Dobbeltklik for at give det et navn du kan kende, fx «Juli 2026». Har du to eller flere, dukker fanen Sammenlign op.'},
- multi:{t:'Flere svar muligt',d:'Spørgsmål hvor gæsten kunne sætte flere krydser. Hvert valg tælles for sig, så procenterne kan lægge sammen til mere end 100.'},
- temaer:{t:'Hyppigste temaer',d:'Ord der går igen i kommentarerne (mindst tre gange, almindelige fyldord er sorteret fra på dansk, engelsk, tysk og færøsk). Klik på et ord for kun at se de kommentarer det står i.'},
- anbefale:{t:'Vil anbefale os',d:'Spørgsmålet om at anbefale jer videre — det tætteste skemaet kommer på en NPS. Andelen med topkarakter er dem der reelt er ambassadører.'},
- rangering:{t:'Rangering',d:'Grupperne sorteret efter samlet tilfredshedsindeks, bedst øverst. Kolonnen længst til højre viser hvor langt gruppen ligger fra totalgennemsnittet.'},
- andel:{t:'Andel af besvarelser',d:'Hvor stor en del af det viste udsnit gruppen udgør. Siger noget om hvem der svarer — ikke nødvendigvis hvem der rejser.'},
- stbedst:{t:'Stærkeste og svageste',d:'For hver gruppe: det spørgsmål de er mest tilfredse med, og det de er mindst tilfredse med. Godt til at se at fx tyske og færøske gæster brokker sig over vidt forskellige ting.'},
- sammenlign:{t:'Sammenlign datasæt',d:'Samme spørgsmål holdt op mod hinanden på tværs af filerne, matchet på spørgsmålsteksten. Δ er sidste datasæt minus det første — altså udviklingen.'},
- profil:{t:'Gæsteprofil',d:'Fordelingen på alle baggrunds- og valgspørgsmål: hvem svarede, hvor skulle de hen, hvilken kahyt, hvor hørte de om jer. Ingen karakterer — kun hvem og hvad.'},
- laveste:{t:'Laveste score',d:'Det spørgsmål der har det laveste indeks. Bemærk at sammenligningen sker på indeks (0–100), ikke på det rå gennemsnit, netop fordi skalaerne er forskellige.'},
- hoejeste:{t:'Højeste score',d:'Det spørgsmål der har det højeste indeks — jeres stærkeste kort, og det der er værd at passe på.'}
+/* ============================================================
+   OUTLET NAMES
+   Some rows come out of Power BI without an outlet name ("unknown") —
+   those are the Skansagarður Buffet, so they are mapped to it below.
+   Add a line here for any other name that needs correcting.
+   ============================================================ */
+const OUTLET_NAMES = {
+  'unknown': 'Skansagarður Buffet'
 };
-function hlp(k){ return HELP[k]? '<span class="q" data-h="'+k+'">?</span>' : ''; }
-(function(){
-  var pop=null;
-  function el(){ return pop || (pop=document.getElementById('pop')); }
-  function show(target,k){
-    var d=HELP[k]; if(!d) return;
-    var p=el();
-    p.innerHTML='<h4>'+esc(d.t)+'</h4><div>'+esc(d.d)+'</div>'+(d.ex?'<div class="ex">'+esc(d.ex)+'</div>':'');
-    p.style.display='block';
-    var r=target.getBoundingClientRect(), pw=p.offsetWidth, ph=p.offsetHeight;
-    var left=Math.min(Math.max(8,r.left+r.width/2-pw/2), window.innerWidth-pw-8);
-    var top=r.bottom+9;
-    if(top+ph>window.innerHeight-8) top=Math.max(8,r.top-ph-9);
-    p.style.left=left+'px'; p.style.top=top+'px';
+
+/* ============================================================
+   COLUMN AND VALUE NAMES
+   Codes from the booking system, written out in plain language.
+   Any column NOT listed here still works — it just keeps its own
+   name from the export.
+   ============================================================ */
+const COL_LABELS = {
+  'CATEGORY_SPECIFICATION_ID': { en:'Guest type',   da:'Gæstetype' },
+  'CHECK_IN_STATUS_ID':        { en:'Checked in',   da:'Tjekket ind' },
+  'CATEGORYGROUP_ID':          { en:'Category group', da:'Kategorigruppe' },
+  'CATEGORY_ID':               { en:'Meal code',    da:'Måltidskode' },
+  'BOOKING_ROW_STATUS_ID':     { en:'Booking status', da:'Bookingstatus' }
+};
+const VALUE_LABELS = {
+  'ADL':  { en:'Adults',    da:'Voksne' },
+  'YTH':  { en:'Youth',     da:'Unge' },
+  'CHD':  { en:'Children',  da:'Børn' },
+  'CHKI': { en:'Checked in',da:'Tjekket ind' },
+  '—':    { en:'—',         da:'—' }
+};
+
+/* ==== BEGIN CORE (parsing + aggregation) ==== */
+const SERVICES = [
+  { id:'breakfast', name:'Breakfast', from:0,     to:10*60+30 },
+  { id:'lunch',     name:'Lunch',     from:10*60+30, to:16*60 },
+  { id:'dinner',    name:'Dinner',    from:16*60, to:24*60 }
+];
+
+function norm(s){ return String(s == null ? '' : s).trim(); }
+function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+/* Power BI writes a filter description above the real table, so find
+   the row that actually carries the column names. */
+function findHeaderRow(rows){
+  for (let i = 0; i < Math.min(rows.length, 40); i++){
+    const r = rows[i] || [];
+    for (const c of r){
+      if (norm(c).toUpperCase() === 'START_DATE') return i;
+    }
   }
-  function hide(){ if(pop) pop.style.display='none'; }
-  document.addEventListener('mouseover',function(e){
-    var t=e.target.closest? e.target.closest('.q'):null;
-    if(t) show(t,t.dataset.h); else if(!(e.target.closest&&e.target.closest('#pop'))) hide();
+  return -1;
+}
+
+function columnMap(headerRow){
+  const map = {};
+  headerRow.forEach((c, i) => { map[norm(c).toUpperCase()] = i; });
+  const pick = (...names) => {
+    for (const n of names) if (map[n] !== undefined) return map[n];
+    return -1;
+  };
+  return {
+    when:    pick('START_DATE','STARTDATE','DATE'),
+    outlet:  pick('NAME','OUTLET'),
+    code:    pick('BOOKINGCODE','BOOKING_CODE'),
+    guest:   pick('BOOKINGLABLE','BOOKINGLABEL','GUEST'),
+    pax:     pick('CATEGORY_SPECIFICATION_ID','PAXTYPE'),
+    qty:     pick('QTY','QUANTITY'),
+    booking: pick('BOOKING_ID','BOOKINGID'),
+    cat:     pick('CATEGORY_ID','CATEGORYID'),
+    checkin: pick('CHECK_IN_STATUS_ID','CHECKINSTATUS')
+  };
+}
+
+/* Accepts a JS Date, an Excel serial number, or the strings Power BI
+   writes: "06-08-2026 17:30:00" (DD-MM-YYYY) and "2026-08-06 17:30:00". */
+function toDate(v){
+  /* Excel stores times as fractions, so a seating saved as 17:45 can come
+     back as 17:44:59.99 — every timestamp is rounded to the whole minute. */
+  const round = d => (d && !isNaN(d)) ? new Date(Math.round(d.getTime() / 60000) * 60000) : null;
+  if (v instanceof Date) return round(v);
+  if (typeof v === 'number' && isFinite(v)){
+    const d = new Date(Math.round((v - 25569) * 86400 * 1000));
+    return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes());
+  }
+  const s = norm(v);
+  if (!s) return null;
+  let m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1], +(m[4]||0), +(m[5]||0));
+  m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3], +(m[4]||0), +(m[5]||0));
+  return round(new Date(s));
+}
+
+function cleanGuest(v){
+  let s = norm(v).replace(/\s*-\s*$/, '');
+  if (!s) return '—';
+  const parts = s.split(',');
+  if (parts.length === 2) s = parts[1].trim() + ' ' + parts[0].trim();
+  return s.replace(/\s+/g, ' ');
+}
+
+function outletName(raw){
+  const s = norm(raw) || 'unknown';
+  return OUTLET_NAMES[s] || OUTLET_NAMES[s.toLowerCase()] || s;
+}
+
+function serviceOf(minutes){
+  for (const s of SERVICES) if (minutes >= s.from && minutes < s.to) return s;
+  return SERVICES[SERVICES.length - 1];
+}
+
+/* rows (array of arrays) -> { days: [...], rowCount, skipped } */
+/* Columns the board already understands. Anything else in the export is
+   offered automatically as an extra dimension to group and filter by. */
+const KNOWN_COLS = ['START_DATE','STARTDATE','DATE','NAME','OUTLET','BOOKINGCODE','BOOKING_CODE',
+  'BOOKINGLABLE','BOOKINGLABEL','GUEST','QTY','QUANTITY','BOOKING_ID','BOOKINGID'];
+
+function buildModel(rows){
+  const hi = findHeaderRow(rows);
+  if (hi < 0) throw new Error('No START_DATE column found. Export the table with its column headers and try again.');
+  const header = rows[hi].map(c => norm(c));
+  const col = columnMap(rows[hi]);
+  if (col.when < 0 || col.qty < 0) throw new Error('The export is missing START_DATE or Qty.');
+
+  const extraCols = header
+    .map((name, i) => ({ name, i }))
+    .filter(c => c.name && !KNOWN_COLS.includes(c.name.toUpperCase()));
+
+  const days = new Map();
+  const facts = [];
+  let used = 0, skipped = 0;
+
+  for (let i = hi + 1; i < rows.length; i++){
+    const r = rows[i] || [];
+    const when = toDate(r[col.when]);
+    const qty = parseInt(norm(r[col.qty]), 10);
+    if (!when || !isFinite(qty)) { if (r.some(c => norm(c))) skipped++; continue; }
+
+    const dateKey = when.getFullYear() + '-' + pad(when.getMonth()+1) + '-' + pad(when.getDate());
+    const minutes = when.getHours()*60 + when.getMinutes();
+    const timeKey = pad(when.getHours()) + ':' + pad(when.getMinutes());
+    const svc = serviceOf(minutes);
+    const outlet = outletName(r[col.outlet]);
+    const paxType = (norm(r[col.pax]) || 'ADL').toUpperCase();
+    const checkedIn = norm(r[col.checkin]).toUpperCase() === 'CHKI';
+    const bookingId = norm(r[col.booking]) || norm(r[col.code]) || ('row' + i);
+
+    if (!days.has(dateKey)) days.set(dateKey, { key:dateKey, date:new Date(when.getFullYear(), when.getMonth(), when.getDate()), covers:0, bookings:new Set(), slots:new Map() });
+    const day = days.get(dateKey);
+
+    const slotKey = svc.id + '|' + outlet + '|' + timeKey;
+    if (!day.slots.has(slotKey)) day.slots.set(slotKey, {
+      key:slotKey, service:svc, outlet, time:timeKey, minutes,
+      covers:0, checkedIn:0, mix:{}, guests:new Map()
+    });
+    const slot = day.slots.get(slotKey);
+
+    slot.covers += qty;
+    if (checkedIn) slot.checkedIn += qty;
+    slot.mix[paxType] = (slot.mix[paxType] || 0) + qty;
+    day.covers += qty;
+    day.bookings.add(bookingId);
+
+    if (!slot.guests.has(bookingId)) slot.guests.set(bookingId, {
+      id:bookingId, code:norm(r[col.code]) || bookingId, name:cleanGuest(r[col.guest]),
+      pax:0, mix:{}, checkedIn:false, cat:norm(r[col.cat])
+    });
+    const g = slot.guests.get(bookingId);
+    g.pax += qty;
+    g.mix[paxType] = (g.mix[paxType] || 0) + qty;
+    if (checkedIn) g.checkedIn = true;
+
+    const fact = {
+      dateKey, weekday: when.getDay(), time: timeKey, service: svc.id,
+      outlet, qty, bookingId, checkedIn,
+      guest: cleanGuest(r[col.guest]), code: norm(r[col.code])
+    };
+    extraCols.forEach(c => { fact['x' + c.i] = norm(r[c.i]) || '—'; });
+    facts.push(fact);
+    used++;
+  }
+
+  const out = [...days.values()].sort((a,b) => a.date - b.date).map(day => {
+    const slots = [...day.slots.values()].sort((a,b) => a.minutes - b.minutes || a.outlet.localeCompare(b.outlet));
+    slots.forEach(s => { s.guests = [...s.guests.values()].sort((a,b) => b.pax - a.pax || a.name.localeCompare(b.name)); });
+    const peak = slots.reduce((m,s) => Math.max(m, s.covers), 0);
+    const byService = SERVICES.map(svc => {
+      const mine = slots.filter(s => s.service.id === svc.id);
+      const outlets = [];
+      mine.forEach(s => {
+        let o = outlets.find(x => x.name === s.outlet);
+        if (!o) outlets.push(o = { name:s.outlet, covers:0, slots:[] });
+        o.covers += s.covers; o.slots.push(s);
+      });
+      outlets.sort((a,b) => b.covers - a.covers);
+      return { ...svc, outlets, covers: mine.reduce((n,s) => n + s.covers, 0), seatings: mine.length };
+    }).filter(s => s.outlets.length);
+    return {
+      key:day.key, date:day.date, covers:day.covers,
+      bookings:day.bookings.size, seatings:slots.length,
+      peak, peakSlot: slots.find(s => s.covers === peak) || null,
+      outlets:[...new Set(slots.map(s => s.outlet))].sort(),
+      byService
+    };
   });
-  document.addEventListener('click',function(e){
-    var t=e.target.closest? e.target.closest('.q'):null;
-    if(t){ e.stopPropagation(); show(t,t.dataset.h); } else hide();
+
+  /* A column is worth offering as a dimension when it has more than one
+     value and few enough of them to make a readable breakdown.          */
+  const dims = [
+    { key:'outlet',  label:'Outlet',      labelDa:'Udsalgssted' },
+    { key:'service', label:'Meal',        labelDa:'Måltid' },
+    { key:'time',    label:'Seating time',labelDa:'Sædetid' },
+    { key:'dateKey', label:'Date',        labelDa:'Dato' },
+    { key:'weekday', label:'Weekday',     labelDa:'Ugedag' }
+  ];
+  extraCols.forEach(c => {
+    const key = 'x' + c.i;
+    const vals = new Set();
+    for (const f of facts){ vals.add(f[key]); if (vals.size > 60) break; }
+    if (vals.size > 1 && vals.size <= 60) dims.push({ key, label: c.name, labelDa: c.name, fromFile: true });
   });
-  document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ hide(); document.getElementById('glossary').classList.remove('on'); } });
-  window.addEventListener('scroll',hide,true);
+
+  return { days: out, rowCount: used, skipped, facts, dims };
+}
+/* ==== END CORE ==== */
+
+/* ============================================================
+   LANGUAGE — Danish and English. Add or reword freely.
+   ============================================================ */
+const STR = {
+  da: {
+    docTitle:'MS Norröna — forudbestilte',
+    eyebrow:'Restauranter om bord', h1a:'Forudbestilte,', h1b:'sæde for sæde',
+    lede:'Træk Power BI-eksporten ind og se alt forudbestilt om bord — hvilken dag, hvilket udsalgssted, hvilken sædetid.',
+    ledeLoaded:'Tryk på et udsalgssted for at se sædetider, og på en sædetid for at se gæsterne.',
+    printline:'forudbestilte',
+    btnNew:'Ny fil', btnCopy:'Kopiér dag', btnPrint:'Udskriv…',
+    dropTitle:'Slip Power BI-eksporten her',
+    dropBody:'En .xlsx eller .csv direkte fra rapporten — ingen oprydning nødvendig. Filen læses i din browser og forlader aldrig denne enhed.',
+    choose:'Vælg en fil',
+    step1:'Åbn bookingrapporten i Power BI.',
+    step2:'Hold over tabellen → Flere muligheder (…) → Eksportér data.',
+    step3:'Vælg Data med aktuelt layout og gem filen.',
+    step4:'Slip den her. Der skal ikke sættes andet op.',
+    dropnote:'…eller træk filen hen over siden. Et billede bliver til logoet.',
+    railhead:'Sejldage i denne eksport',
+    tabBoard:'Dagsoversigt', tabAnalysis:'Analyse',
+    serviceDay:'Servicedag',
+    kpiTotal:'Forudbestilt i dag', kpiTotalNote:'på tværs af alle udsalgssteder',
+    kpiBookings:'Bookinger', kpiBookingsNote:'{n} forudbestilte pr. booking i gennemsnit',
+    kpiSeatings:'Sædetider', kpiSeatingsNote:'fordelt på {n} udsalgssted{s}',
+    kpiPeak:'Travleste sædetid',
+    allOutlets:'Alle udsalgssteder', expandAll:'Fold alle ud', collapseAll:'Fold alle sammen',
+    searchGuest:'Find en gæst eller bookingnr.',
+    breakfast:'Morgenmad', lunch:'Frokost', dinner:'Aftensmad',
+    seating:'sædetid', seatings:'sædetider', outlet:'udsalgssted', outlets:'udsalgssteder',
+    prebooked:'forudbestilt', prebookedCaps:'FORUDBESTILT',
+    booking:'booking', bookings:'bookinger',
+    checkedIn:'tjekket ind', busiest:'Travleste sædetid',
+    guestList:'Gæsteliste', thGuest:'Gæst', thBooking:'Booking', thPax:'Antal', thMix:'Fordeling', thDoor:'Dør',
+    checkedInBadge:'Tjekket ind',
+    nothing:'Intet forudbestilt med dette filter.',
+    footer:'restauranter om bord',
+    footMeta:'{d} dage · {n} forudbestilte importeret',
+    legendTitle:'Sådan læses tavlen',
+    legendFine:'Morgenmad, frokost og aftensmad følger starttidspunktet: før 10:30 er morgenmad, 10:30–15:59 er frokost, fra 16:00 er aftensmad. Tider og tal er præcis som de kommer fra bookingsystemet.',
+    lg1:'Forudbestilt', lg1d:'Personer der forventes at spise. Det tal køkkenet og udsalgsstedet planlægger efter.',
+    lg2:'Bookinger', lg2d:'Enkelte reservationer. Én booking kan dække flere personer — en familie på fire er 1 booking, 4 forudbestilte.',
+    lg3:'Voksne / unge / børn', lg3d:'ADL, YTH og CHD, som bookingsystemet klassificerer dem.',
+    lg4:'Tjekket ind', lg4d:'Gæster der allerede er tjekket ind ved døren. Tomt betyder at de ikke er ankommet endnu.',
+    lg5:'Sædetid', lg5d:'Ét starttidspunkt på ét udsalgssted. Tryk på en sædetid for at åbne gæstelisten til døren.',
+    lg6:'Bjælken', lg6d:'Hvor stor sædetiden er sammenlignet med dagens travleste. En fuld bjælke er dagens top.',
+    printTitle:'Udskriv', printSub:'Vælg de dage du har brug for. Hver dag kommer på sit eget A4-ark.',
+    allDays:'Alle dage', clear:'Ryd', cancel:'Annullér', printBtn:'Udskriv',
+    ppcount:'{n} dag{s} · {n} ark A4', ppnone:'Ingen dage valgt',
+    veilTitle:'Slip eksporten', veilBody:'Slip hvor som helst for at indlæse den — et billede bliver til logoet',
+    copied:'Dagsoversigt kopieret', copiedTable:'Tabel kopieret — indsæt i Excel',
+    copyFail:'Kunne ikke kopiere — markér teksten i stedet',
+    logoSet:'Logo sat indtil videre — gem det som logo.svg ved siden af filen for at beholde det',
+    analysisEyebrow:'Statistik', analysisTitle:'Analyse',
+    scope:'Periode', groupBy:'Grupper efter', splitBy:'Fordel på', splitNone:'Ingen fordeling',
+    searchAll:'Søg i alt', searchAllPh:'gæst, booking, kode, kategori…',
+    thisDay:'Denne dag', allDaysScope:'Alle dage i filen',
+    filtersLabel:'Filtre', all:'Alle',
+    anTotal:'Forudbestilt', anBookings:'Bookinger', anAvg:'Gns. pr. booking', anCheck:'Tjekket ind',
+    anShare:'Andel', anRows:'{n} grupper', anTotalRow:'I alt',
+    copyTable:'Kopiér tabel',
+    anHint:'Alt herunder bygger på kolonnerne i din eksport. Tilføjer du flere kolonner i Power BI — f.eks. kahyttype, nationalitet eller familiesegment — dukker de automatisk op som muligheder her.',
+    anCols:'Fundet i filen: {cols}',
+    weekdays:['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'],
+    weekdaysShort:['søn','man','tir','ons','tor','fre','lør'],
+    months:['januar','februar','marts','april','maj','juni','juli','august','september','oktober','november','december'],
+    monthsShort:['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'],
+    locale:'da-DK'
+  },
+  en: {
+    docTitle:'MS Norröna — prebookings',
+    eyebrow:'Onboard restaurants', h1a:'Prebookings,', h1b:'seating by seating',
+    lede:'Drop in the Power BI export and see everything prebooked on board — which day, which outlet, which seating.',
+    ledeLoaded:'Tap an outlet to see its seating times, then a seating to see the guest list.',
+    printline:'prebooked',
+    btnNew:'New file', btnCopy:'Copy day', btnPrint:'Print…',
+    dropTitle:'Drop the Power BI export here',
+    dropBody:'An .xlsx or .csv straight from the report — no tidying up needed. The file is read inside your browser and never leaves this device.',
+    choose:'Choose a file',
+    step1:'Open the onboard bookings report in Power BI.',
+    step2:'Hover the table → More options (…) → Export data.',
+    step3:'Choose Data with current layout and save the file.',
+    step4:'Drop it here. Nothing else to set up.',
+    dropnote:'…or drag the file anywhere onto this page. An image becomes the logo.',
+    railhead:'Sailing days in this export',
+    tabBoard:'Day board', tabAnalysis:'Analysis',
+    serviceDay:'Service day',
+    kpiTotal:'Prebooked today', kpiTotalNote:'across all outlets',
+    kpiBookings:'Bookings', kpiBookingsNote:'{n} prebooked each on average',
+    kpiSeatings:'Seatings', kpiSeatingsNote:'across {n} outlet{s}',
+    kpiPeak:'Busiest seating',
+    allOutlets:'All outlets', expandAll:'Expand all', collapseAll:'Collapse all',
+    searchGuest:'Find a guest or booking no.',
+    breakfast:'Breakfast', lunch:'Lunch', dinner:'Dinner',
+    seating:'seating', seatings:'seatings', outlet:'outlet', outlets:'outlets',
+    prebooked:'prebooked', prebookedCaps:'PREBOOKED',
+    booking:'booking', bookings:'bookings',
+    checkedIn:'checked in', busiest:'Busiest seating',
+    guestList:'Guest list', thGuest:'Guest', thBooking:'Booking', thPax:'Pax', thMix:'Mix', thDoor:'Door',
+    checkedInBadge:'Checked in',
+    nothing:'Nothing prebooked for this filter.',
+    footer:'onboard restaurants',
+    footMeta:'{d} days · {n} prebooked imported',
+    legendTitle:'How to read this board',
+    legendFine:'Breakfast, lunch and dinner follow the start time: before 10:30 is breakfast, 10:30–15:59 is lunch, from 16:00 is dinner. Times and numbers are exactly as they come out of the booking system.',
+    lg1:'Prebooked', lg1d:'People expected to eat. This is the number the galley and the outlet plan on.',
+    lg2:'Bookings', lg2d:'Separate reservations. One booking can hold several people — a family of four is 1 booking, 4 prebooked.',
+    lg3:'ADL / YTH / CHD', lg3d:'Adults, youth and children, as the booking system classifies them.',
+    lg4:'Checked in', lg4d:'Guests already checked in at the door. Blank means they have not arrived yet.',
+    lg5:'Seating', lg5d:'One start time in one outlet. Tap a seating to open its guest list for the door.',
+    lg6:'The bar', lg6d:'How big that seating is next to the busiest seating of the day. A full bar is the peak.',
+    printTitle:'Print', printSub:'Pick the days you need. Each day comes out on its own A4 sheet.',
+    allDays:'All days', clear:'Clear', cancel:'Cancel', printBtn:'Print',
+    ppcount:'{n} day{s} · {n} sheet{s} of A4', ppnone:'No days selected',
+    veilTitle:'Drop the export', veilBody:'Release anywhere to load it — an image becomes the logo',
+    copied:'Day summary copied', copiedTable:'Table copied — paste into Excel',
+    copyFail:'Could not copy — select the text instead',
+    logoSet:'Logo set for now — save it as logo.svg beside this file to keep it',
+    analysisEyebrow:'Statistics', analysisTitle:'Analysis',
+    scope:'Period', groupBy:'Group by', splitBy:'Split by', splitNone:'No split',
+    searchAll:'Search everything', searchAllPh:'guest, booking, code, category…',
+    thisDay:'This day', allDaysScope:'All days in the file',
+    filtersLabel:'Filters', all:'All',
+    anTotal:'Prebooked', anBookings:'Bookings', anAvg:'Avg per booking', anCheck:'Checked in',
+    anShare:'Share', anRows:'{n} groups', anTotalRow:'Total',
+    copyTable:'Copy table',
+    anHint:'Everything here is built from the columns in your export. Add more columns in Power BI — cabin type, nationality, family segment — and they appear here as options automatically.',
+    anCols:'Found in the file: {cols}',
+    weekdays:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    weekdaysShort:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months:['January','February','March','April','May','June','July','August','September','October','November','December'],
+    monthsShort:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    locale:'en-GB'
+  }
+};
+
+let LANG = (location.hash.replace('#','') === 'en') ? 'en' : 'da';
+const T = k => STR[LANG][k];
+const tf = (k, vals) => String(T(k)).replace(/\{(\w+)\}/g, (m,p) => vals[p] !== undefined ? vals[p] : m);
+const plural = (n, one, many) => n === 1 ? T(one) : T(many);
+
+/* ---------------- helpers ---------------- */
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n).toLocaleString(STR[LANG].locale);
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function longDate(d){
+  return LANG === 'da'
+    ? `${T('weekdays')[d.getDay()]} ${d.getDate()}. ${T('months')[d.getMonth()]} ${d.getFullYear()}`
+    : `${T('weekdays')[d.getDay()]} ${d.getDate()} ${T('monthsShort')[d.getMonth()]} ${d.getFullYear()}`;
+}
+function toast(msg){
+  const el = $('toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 2600);
+}
+function colLabel(dim){
+  if (!dim.fromFile) return LANG === 'da' ? dim.labelDa : dim.label;
+  const m = COL_LABELS[dim.label.toUpperCase()];
+  return m ? m[LANG] : dim.label;
+}
+function valLabel(dim, v){
+  if (dim.key === 'service') return T(v);
+  if (dim.key === 'weekday') return T('weekdays')[v];
+  const m = VALUE_LABELS[v];
+  return m ? m[LANG] : String(v);
+}
+
+const ICONS = {
+  breakfast:'<circle cx="12" cy="14" r="4"/><path d="M12 4v2M4.9 8.9l1.4 1.4M19.1 8.9l-1.4 1.4M2 18h20"/>',
+  lunch:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/>',
+  dinner:'<path d="M20.5 14.5A8.6 8.6 0 0 1 9.5 3.5a8.6 8.6 0 1 0 11 11z"/>'
+};
+const svcIcon = id => `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[id]||ICONS.lunch}</svg>`;
+
+/* ---------------- state ---------------- */
+let MODEL = null, dayIndex = 0, outletFilter = 'all', query = '',
+    openSlots = new Set(), openOutlets = new Set(), tab = 'board',
+    anScope = 'day', anDim = 'outlet', anSplit = '', anQuery = '',
+    anFilters = {}, anSort = { col:'total', dir:-1 }, printPick = new Set();
+
+/* ============================================================
+   LOGO — tried in order. Put your own file next to index.html.
+   ============================================================ */
+const LOGO_SOURCES = [
+  'logo.svg', 'logo.png', 'smyril-line.svg',
+  'images/logo.svg', 'assets/logo.svg', 'img/logo.svg',
+  'https://www.smyrilline.com/wp-content/themes/lunnar-smyrilline/images/logo.svg'
+];
+const LOGO_DATA_URL = '';
+
+function setLogo(src, permanent){
+  const img = $('brandLogo'); if (!img) return;
+  img.onload = () => {
+    img.classList.remove('hidden');
+    const f = $('falconMark'); if (f) f.remove();
+    $('wordmark').classList.add('with-logo');
+    if (!permanent) toast(T('logoSet'));
+  };
+  img.src = src;
+}
+(function loadLogo(i = 0){
+  const img = $('brandLogo'); if (!img) return;
+  if (LOGO_DATA_URL) return setLogo(LOGO_DATA_URL, true);
+  if (i >= LOGO_SOURCES.length) return;
+  img.onerror = () => loadLogo(i + 1);
+  setLogo(LOGO_SOURCES[i], true);
 })();
-function intro(txt,k){ return '<div class="intro">'+txt+(k?hlp(k):'')+'</div>'; }
 
-var CC = {DK:'Danmark',FO:'Færøerne',IS:'Island',NO:'Norge',SE:'Sverige',FI:'Finland',DE:'Tyskland',
-NL:'Holland',BE:'Belgien',FR:'Frankrig',CH:'Schweiz',AT:'Østrig',IT:'Italien',ES:'Spanien',PT:'Portugal',
-GB:'Storbritannien',UK:'Storbritannien',IE:'Irland',US:'USA',CA:'Canada',PL:'Polen',CZ:'Tjekkiet',
-SK:'Slovakiet',HU:'Ungarn',SI:'Slovenien',HR:'Kroatien',RO:'Rumænien',BG:'Bulgarien',GR:'Grækenland',
-EE:'Estland',LV:'Letland',LT:'Litauen',LU:'Luxembourg',GL:'Grønland',AU:'Australien',NZ:'New Zealand',
-JP:'Japan',CN:'Kina',IL:'Israel',RU:'Rusland',UA:'Ukraine',TR:'Tyrkiet',ZA:'Sydafrika',BR:'Brasilien',MX:'Mexico'};
-function flag(cc){
-  if(!/^[A-Za-z]{2}$/.test(cc)) return '';
-  var c=cc.toUpperCase();
-  return String.fromCodePoint(0x1F1E6+c.charCodeAt(0)-65, 0x1F1E6+c.charCodeAt(1)-65);
-}
-function ccName(v){
-  var s=CORE.norm(v);
-  if(/^[A-Za-z]{2}$/.test(s)){ var u=s.toUpperCase(); return (flag(u)+' '+(CC[u]||u)).trim(); }
-  return s;
-}
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-function f1(x){ return (Math.round(x*10)/10).toFixed(1); }
-function f0(x){ return Math.round(x); }
-function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2200); }
-
-function idxColor(v){
-  if(v==null) return 'rgba(255,255,255,.06)';
-  if(v>=88) return '#46B08A';
-  if(v>=78) return '#7FBF6A';
-  if(v>=68) return '#C9BB58';
-  if(v>=58) return '#E2A64B';
-  if(v>=45) return '#E28B4B';
-  return '#E05B4B';
-}
-function distColors(scale){
-  if(scale<=4) return {1:'#E05B4B',2:'#E28B4B',3:'#7FBF6A',4:'#46B08A'};
-  if(scale===5) return {1:'#E05B4B',2:'#E28B4B',3:'#C9BB58',4:'#7FBF6A',5:'#46B08A'};
-  var o={}; for(var i=1;i<=scale;i++){ o[i]=idxColor((i-1)/(scale-1)*100); } return o;
+/* ---------------- static text ---------------- */
+function applyStatic(){
+  document.documentElement.lang = LANG;
+  document.title = T('docTitle');
+  document.querySelectorAll('[data-t]').forEach(el => { el.textContent = T(el.dataset.t); });
+  $('langDa').setAttribute('aria-pressed', LANG === 'da');
+  $('langEn').setAttribute('aria-pressed', LANG === 'en');
+  $('subline').textContent = MODEL ? T('ledeLoaded') : T('lede');
+  $('anQ').placeholder = T('searchAllPh');
+  $('legendBody').innerHTML = [1,2,3,4,5,6]
+    .map(i => `<dt>${T('lg'+i)}</dt><dd>${T('lg'+i+'d')}</dd>`).join('');
+  SERVICES.forEach(s => { s.label = T(s.id); });
 }
 
-/* ------------------------- import ------------------------- */
-var dz=document.getElementById('dropzone');
-['dragenter','dragover'].forEach(function(e){ dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.add('hot');}); });
-['dragleave','drop'].forEach(function(e){ dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.remove('hot');}); });
-dz.addEventListener('drop',function(ev){ handleFiles(ev.dataTransfer.files); });
-dz.addEventListener('click',function(){ document.getElementById('fileInput').click(); });
-document.getElementById('fileInput').addEventListener('change',function(e){ handleFiles(e.target.files); e.target.value=''; });
-window.addEventListener('dragover',function(e){e.preventDefault();});
-window.addEventListener('drop',function(e){ e.preventDefault(); if(DS.length) handleFiles(e.dataTransfer.files); });
+function setLang(l){
+  LANG = l;
+  history.replaceState(null, '', '#' + l);
+  applyStatic();
+  if (MODEL){ buildAnalysisControls(); render(); }
+}
 
-function handleFiles(files){
-  if(typeof XLSX==='undefined'){
-    toast('Indlæser regnearks-motoren …');
-    var tries=0, iv=setInterval(function(){
-      if(typeof XLSX!=='undefined'){ clearInterval(iv); handleFiles(files); }
-      else if(++tries>40){ clearInterval(iv); toast('Kunne ikke hente regnearks-motoren — tjek din netforbindelse'); }
-    },250);
+/* ---------------- day board ---------------- */
+function mixPills(mix, cls){
+  const order = ['ADL','YTH','CHD'];
+  const keys = [...new Set([...order.filter(k => mix[k]), ...Object.keys(mix)])];
+  return keys.map(k => {
+    const lbl = VALUE_LABELS[k] ? VALUE_LABELS[k][LANG] : k;
+    return `<span class="pill ${cls||''}">${esc(lbl)} <b>${mix[k]}</b></span>`;
+  }).join('');
+}
+function mixPlain(mix){
+  const order = ['ADL','YTH','CHD'];
+  const keys = [...new Set([...order.filter(k => mix[k]), ...Object.keys(mix)])];
+  return keys.map(k => k + ' ' + mix[k]).join(' · ');
+}
+function matches(g, q){
+  return !q || g.name.toLowerCase().includes(q) || String(g.code).toLowerCase().includes(q);
+}
+function outletKeys(day){
+  const keys = [];
+  day.byService.forEach(svc => svc.outlets.forEach(o => {
+    if (outletFilter === 'all' || o.name === outletFilter) keys.push(`${day.key}|${svc.id}|${o.name}`);
+  }));
+  return keys;
+}
+function allOutletsOpen(day){
+  const keys = outletKeys(day);
+  return keys.length > 0 && keys.every(k => openOutlets.has(k));
+}
+function toggleAll(){
+  const day = MODEL.days[dayIndex], keys = outletKeys(day);
+  if (allOutletsOpen(day)) keys.forEach(k => openOutlets.delete(k));
+  else keys.forEach(k => openOutlets.add(k));
+  render();
+}
+
+function guestTable(slot, q){
+  const rows = slot.guests.map(g => `
+    <tr class="${q && matches(g,q) ? 'hit' : ''}">
+      <td class="name">${esc(g.name)}</td>
+      <td class="code">${esc(g.code)}</td>
+      <td class="num">${g.pax}</td>
+      <td class="code">${mixPlain(g.mix)}</td>
+      <td>${g.checkedIn ? `<span class="ci-badge">${T('checkedInBadge')}</span>` : ''}</td>
+    </tr>`).join('');
+  return `<div class="guests">
+    <div class="gh">${T('guestList')} · ${slot.time} · ${esc(slot.outlet)}</div>
+    <table>
+      <thead><tr><th>${T('thGuest')}</th><th>${T('thBooking')}</th><th class="num">${T('thPax')}</th><th>${T('thMix')}</th><th>${T('thDoor')}</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function render(){
+  if (!MODEL || !MODEL.days.length) return;
+  const day = MODEL.days[dayIndex];
+
+  $('rail').innerHTML = MODEL.days.map((d,i) => `
+    <button class="daychip" aria-pressed="${i===dayIndex}" data-day="${i}">
+      <div class="dow">${T('weekdaysShort')[d.date.getDay()]}</div>
+      <div class="dnum">${pad(d.date.getDate())}.${pad(d.date.getMonth()+1)}</div>
+      <div class="dcov">${fmt(d.covers)} ${T('prebooked')}</div>
+    </button>`).join('');
+
+  $('dayTitle').textContent = longDate(day.date);
+
+  const perOutlet = {};
+  day.byService.forEach(s => s.outlets.forEach(o => { perOutlet[o.name] = (perOutlet[o.name]||0) + o.covers; }));
+  $('outletTotals').innerHTML = Object.entries(perOutlet).sort((a,b)=>b[1]-a[1])
+    .map(([n,c]) => `${esc(n)} <b style="color:var(--ink)">${fmt(c)}</b>`).join(' &nbsp;·&nbsp; ');
+
+  $('kpis').innerHTML = `
+    <div class="kpi hero-kpi"><div class="lbl">${T('kpiTotal')}</div><div class="val">${fmt(day.covers)}</div><div class="note">${T('kpiTotalNote')}</div></div>
+    <div class="kpi"><div class="lbl">${T('kpiBookings')}</div><div class="val">${fmt(day.bookings)}</div><div class="note">${tf('kpiBookingsNote',{n:(day.covers/Math.max(day.bookings,1)).toFixed(1)})}</div></div>
+    <div class="kpi"><div class="lbl">${T('kpiSeatings')}</div><div class="val">${fmt(day.seatings)}</div><div class="note">${tf('kpiSeatingsNote',{n:day.outlets.length,s:day.outlets.length===1?'':LANG==='da'?'er':'s'})}</div></div>
+    <div class="kpi"><div class="lbl">${T('kpiPeak')}</div><div class="val">${fmt(day.peak)}</div><div class="note">${day.peakSlot ? esc(day.peakSlot.time+' · '+day.peakSlot.outlet) : '—'}</div></div>`;
+
+  $('filterbar').innerHTML = ['all', ...day.outlets].map(o => `
+      <button class="chip" data-outlet="${esc(o)}" aria-pressed="${outletFilter===o}">${o==='all' ? T('allOutlets') : esc(o)}</button>`).join('')
+    + `<button class="chip" id="expandAll">${allOutletsOpen(day) ? T('collapseAll') : T('expandAll')}</button>`
+    + `<label class="search">
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+         <input id="q" type="search" placeholder="${T('searchGuest')}" value="${esc(query)}" aria-label="${T('searchGuest')}">
+       </label>`;
+
+  const q = query.trim().toLowerCase();
+  let html = '';
+  day.byService.forEach(svc => {
+    const outlets = svc.outlets.filter(o => outletFilter === 'all' || o.name === outletFilter);
+    if (!outlets.length) return;
+    const covers = outlets.reduce((n,o) => n + o.covers, 0);
+    const seatings = outlets.reduce((n,o) => n + o.slots.length, 0);
+    html += `<section class="service">
+      <div class="service-head">
+        <div class="svc-icon">${svcIcon(svc.id)}</div>
+        <div>
+          <h3>${T(svc.id)}</h3>
+          <div class="cnt">${seatings} ${plural(seatings,'seating','seatings')} · ${outlets.length} ${plural(outlets.length,'outlet','outlets')}</div>
+        </div>
+        <div class="tot"><small>${T('prebookedCaps')}</small>${fmt(covers)}</div>
+      </div>`;
+    outlets.forEach(o => {
+      const okey = `${day.key}|${svc.id}|${o.name}`;
+      const oOpen = openOutlets.has(okey) || (!!q && o.slots.some(s => s.guests.some(g => matches(g, q))));
+      const oMix = {}, oBookings = new Set();
+      let oCheckedIn = 0;
+      o.slots.forEach(s => {
+        Object.entries(s.mix).forEach(([k,v]) => { oMix[k] = (oMix[k]||0) + v; });
+        s.guests.forEach(g => oBookings.add(g.id));
+        oCheckedIn += s.checkedIn;
+      });
+      html += `<div class="outletcard ${oOpen?'open':''}">
+        <button class="outlet-head" data-out="${esc(okey)}" aria-expanded="${oOpen}">
+          <span class="dot"></span>
+          <span class="ohead">
+            <span class="oline"><h4>${esc(o.name)}</h4><span class="seats">${o.slots.length} ${plural(o.slots.length,'seating','seatings')}</span></span>
+            <span class="pills">
+              ${mixPills(oMix)}
+              <span class="pill">${oBookings.size} ${plural(oBookings.size,'booking','bookings')}</span>
+              ${oCheckedIn ? `<span class="pill ci">${oCheckedIn} ${T('checkedIn')}</span>` : ''}
+              ${o.slots.some(s => s.covers===day.peak) ? `<span class="pill peak">${T('busiest')}</span>` : ''}
+            </span>
+          </span>
+          <span class="oc"><b>${fmt(o.covers)}</b> ${T('prebooked')}</span>
+          <svg class="ochev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>`;
+      if (oOpen) o.slots.forEach(s => {
+        const pct = day.peak ? Math.max(5, Math.round(s.covers / day.peak * 100)) : 0;
+        const open = openSlots.has(s.key) || (!!q && s.guests.some(g => matches(g, q)));
+        html += `<button class="slot" data-slot="${esc(s.key)}" aria-expanded="${open}">
+            <div class="timechip">${s.time}</div>
+            <div class="meta">
+              <div class="track"><span style="width:${pct}%"></span></div>
+              <div class="pills">
+                ${mixPills(s.mix)}
+                <span class="pill">${s.guests.length} ${plural(s.guests.length,'booking','bookings')}</span>
+                ${s.checkedIn ? `<span class="pill ci">${s.checkedIn} ${T('checkedIn')}</span>` : ''}
+                ${s.covers===day.peak ? `<span class="pill peak">${T('busiest')}</span>` : ''}
+              </div>
+            </div>
+            <div class="covers"><div class="n">${fmt(s.covers)}</div><div class="u">${T('prebooked')}</div></div>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </button>`;
+        if (open) html += guestTable(s, q);
+      });
+      html += `</div>`;
+    });
+    html += `</section>`;
+  });
+
+  $('services').innerHTML = html || `<p class="empty">${T('nothing')}</p>`;
+  $('footMeta').textContent = tf('footMeta',{ d:MODEL.days.length, n:fmt(MODEL.days.reduce((n,d)=>n+d.covers,0)) });
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-pressed', b.dataset.tab === tab));
+  $('viewBoard').classList.toggle('hidden', tab !== 'board');
+  $('viewAnalysis').classList.toggle('hidden', tab !== 'analysis');
+  buildPrintSheet([day]);
+  if (tab === 'analysis') renderAnalysis();
+}
+
+/* ---------------- analysis ---------------- */
+function dimByKey(k){ return MODEL.dims.find(d => d.key === k); }
+
+function buildAnalysisControls(){
+  $('anScope').innerHTML = `<option value="day">${T('thisDay')}</option><option value="all">${T('allDaysScope')}</option>`;
+  $('anScope').value = anScope;
+  const opts = MODEL.dims.map(d => `<option value="${d.key}">${esc(colLabel(d))}</option>`).join('');
+  $('anDim').innerHTML = opts; $('anDim').value = anDim;
+  $('anSplit').innerHTML = `<option value="">${T('splitNone')}</option>` + opts; $('anSplit').value = anSplit;
+  $('anHint').textContent = T('anHint');
+  $('anCols').textContent = tf('anCols',{ cols: MODEL.dims.map(colLabel).join(' · ') });
+
+  $('anFilters').innerHTML = MODEL.dims.map(d => {
+    const vals = [...new Set(MODEL.facts.map(f => f[d.key]))]
+      .sort((a,b) => String(valLabel(d,a)).localeCompare(String(valLabel(d,b)), STR[LANG].locale));
+    if (vals.length > 40) return '';
+    return `<label class="ctrl"><span>${esc(colLabel(d))}</span>
+      <select data-filter="${d.key}">
+        <option value="">${T('all')}</option>
+        ${vals.map(v => `<option value="${esc(v)}" ${anFilters[d.key]===String(v)?'selected':''}>${esc(valLabel(d,v))}</option>`).join('')}
+      </select></label>`;
+  }).join('');
+}
+
+function analysisFacts(){
+  const day = MODEL.days[dayIndex];
+  const q = anQuery.trim().toLowerCase();
+  return MODEL.facts.filter(f => {
+    if (anScope === 'day' && f.dateKey !== day.key) return false;
+    for (const k in anFilters){
+      if (anFilters[k] !== '' && String(f[k]) !== anFilters[k]) return false;
+    }
+    if (q){
+      let hit = false;
+      for (const k in f){
+        if (String(f[k]).toLowerCase().includes(q)){ hit = true; break; }
+      }
+      if (!hit) return false;
+    }
+    return true;
+  });
+}
+
+function renderAnalysis(){
+  const dim = dimByKey(anDim) || MODEL.dims[0];
+  const split = anSplit ? dimByKey(anSplit) : null;
+  const facts = analysisFacts();
+
+  const groups = new Map();
+  const splitVals = new Map();
+  facts.forEach(f => {
+    const gv = f[dim.key];
+    if (!groups.has(gv)) groups.set(gv, { key:gv, total:0, bookings:new Set(), checked:0, cells:new Map() });
+    const g = groups.get(gv);
+    g.total += f.qty;
+    g.bookings.add(f.bookingId);
+    if (f.checkedIn) g.checked += f.qty;
+    if (split){
+      const sv = f[split.key];
+      g.cells.set(sv, (g.cells.get(sv)||0) + f.qty);
+      splitVals.set(sv, (splitVals.get(sv)||0) + f.qty);
+    }
+  });
+
+  const grand = facts.reduce((n,f) => n + f.qty, 0);
+  const grandBookings = new Set(facts.map(f => f.bookingId)).size;
+  const grandChecked = facts.reduce((n,f) => n + (f.checkedIn ? f.qty : 0), 0);
+
+  $('anKpis').innerHTML = `
+    <div class="kpi hero-kpi"><div class="lbl">${T('anTotal')}</div><div class="val">${fmt(grand)}</div><div class="note">${fmt(facts.length)} ${LANG==='da'?'rækker':'rows'}</div></div>
+    <div class="kpi"><div class="lbl">${T('anBookings')}</div><div class="val">${fmt(grandBookings)}</div><div class="note">${tf('kpiBookingsNote',{n:(grand/Math.max(grandBookings,1)).toFixed(1)})}</div></div>
+    <div class="kpi"><div class="lbl">${T('anCheck')}</div><div class="val">${grand ? Math.round(grandChecked/grand*100) : 0}%</div><div class="note">${fmt(grandChecked)} / ${fmt(grand)}</div></div>
+    <div class="kpi"><div class="lbl">${esc(colLabel(dim))}</div><div class="val">${fmt(groups.size)}</div><div class="note">${tf('anRows',{n:groups.size})}</div></div>`;
+
+  const cols = split
+    ? [...splitVals.entries()].sort((a,b) => b[1]-a[1]).slice(0,10).map(e => e[0])
+    : [];
+
+  let rows = [...groups.values()].map(g => ({
+    key:g.key,
+    label:valLabel(dim, g.key),
+    total:g.total,
+    bookings:g.bookings.size,
+    avg: g.bookings.size ? g.total/g.bookings.size : 0,
+    check: g.total ? g.checked/g.total : 0,
+    cells:g.cells
+  }));
+  const sc = anSort.col, dir = anSort.dir;
+  rows.sort((a,b) => {
+    let va, vb;
+    if (sc === 'label'){ va = String(a.label); vb = String(b.label); return va.localeCompare(vb, STR[LANG].locale) * dir; }
+    if (sc.startsWith('cell:')){ const k = sc.slice(5); va = a.cells.get(k)||0; vb = b.cells.get(k)||0; }
+    else { va = a[sc]; vb = b[sc]; }
+    return (va - vb) * dir;
+  });
+
+  const max = Math.max(1, ...rows.map(r => r.total));
+  const arrow = c => anSort.col === c ? (anSort.dir === 1 ? ' ▲' : ' ▼') : '';
+
+  const head = `<thead><tr>
+      <th class="s" data-sort="label">${esc(colLabel(dim))}${arrow('label')}</th>
+      ${cols.map(c => `<th class="s num" data-sort="cell:${esc(c)}">${esc(valLabel(split,c))}${arrow('cell:'+c)}</th>`).join('')}
+      <th class="s num" data-sort="bookings">${T('anBookings')}${arrow('bookings')}</th>
+      <th class="s num" data-sort="avg">${T('anAvg')}${arrow('avg')}</th>
+      <th class="s num" data-sort="check">${T('anCheck')}${arrow('check')}</th>
+      <th class="s num strong" data-sort="total">${T('anTotal')}${arrow('total')}</th>
+      <th class="share">${T('anShare')}</th>
+    </tr></thead>`;
+
+  const body = rows.map(r => `<tr>
+      <td class="lbl">${esc(r.label)}</td>
+      ${cols.map(c => `<td class="num">${r.cells.get(c) ? fmt(r.cells.get(c)) : '<span class="dim">–</span>'}</td>`).join('')}
+      <td class="num">${fmt(r.bookings)}</td>
+      <td class="num">${r.avg.toFixed(1)}</td>
+      <td class="num">${Math.round(r.check*100)}%</td>
+      <td class="num strong">${fmt(r.total)}</td>
+      <td class="share"><span class="minibar"><span style="width:${Math.round(r.total/max*100)}%"></span></span><i>${grand ? (r.total/grand*100).toFixed(1) : 0}%</i></td>
+    </tr>`).join('');
+
+  const foot = `<tfoot><tr>
+      <td class="lbl">${T('anTotalRow')}</td>
+      ${cols.map(c => `<td class="num">${fmt(splitVals.get(c)||0)}</td>`).join('')}
+      <td class="num">${fmt(grandBookings)}</td>
+      <td class="num">${(grand/Math.max(grandBookings,1)).toFixed(1)}</td>
+      <td class="num">${grand ? Math.round(grandChecked/grand*100) : 0}%</td>
+      <td class="num strong">${fmt(grand)}</td><td></td>
+    </tr></tfoot>`;
+
+  $('anTable').innerHTML = rows.length ? head + `<tbody>${body}</tbody>` + foot
+    : `<tbody><tr><td class="empty">${T('nothing')}</td></tr></tbody>`;
+}
+
+function copyTable(){
+  const tbl = $('anTable');
+  const lines = [...tbl.querySelectorAll('tr')].map(tr =>
+    [...tr.children].map(td => td.textContent.replace(/\s+/g,' ').trim()).join('\t'));
+  navigator.clipboard.writeText(lines.join('\n')).then(
+    () => toast(T('copiedTable')), () => toast(T('copyFail')));
+}
+
+/* ---------------- print ---------------- */
+function hasRealLogo(){
+  const img = $('brandLogo');
+  return !!(img && !img.classList.contains('hidden') && img.getAttribute('src'));
+}
+function logoForPrint(){
+  const img = $('brandLogo');
+  if (hasRealLogo()) return `<img class="ps-logo" src="${esc(img.getAttribute('src'))}" alt="Smyril Line">`;
+  return `<svg class="falcon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8.5c2.4 0 4.1 1.9 4.3 4.3.15 1.9.4 3.7.8 5.3 6.2 2 13.6 7.4 20.6 16.6 1.3 1.7-.4 3.9-2.3 3.1-7.1-3-13.1-4.7-17.7-5.2.35 5.2-.15 10.3-1.5 15.3L32 57.5l-4.2-9.6c-1.35-5-1.85-10.1-1.5-15.3-4.6.5-10.6 2.2-17.7 5.2-1.9.8-3.6-1.4-2.3-3.1C13.3 25.5 20.7 20.1 26.9 18.1c.4-1.6.65-3.4.8-5.3C27.9 10.4 29.6 8.5 32 8.5z"/></svg>`;
+}
+function printPage(day){
+  const services = day.byService.map(svc => {
+    const outlets = svc.outlets.map(o => {
+      const rows = o.slots.map(s => `
+        <tr class="${s.covers===day.peak?'peak':''}">
+          <td class="t">${s.time}</td>
+          <td class="n">${s.mix.ADL||''}</td>
+          <td class="n">${s.mix.YTH||''}</td>
+          <td class="n">${s.mix.CHD||''}</td>
+          <td class="n">${s.guests.length}</td>
+          <td class="big">${fmt(s.covers)}</td>
+        </tr>`).join('');
+      return `<div class="ps-out">
+        <div class="ps-out-h"><span class="o">${esc(o.name)}</span><span class="seats">${o.slots.length} ${plural(o.slots.length,'seating','seatings')}</span><span class="n">${fmt(o.covers)}<small>${T('prebooked')}</small></span></div>
+        <table class="ps-t">
+          <thead><tr><th>${LANG==='da'?'Tid':'Time'}</th><th class="n">ADL</th><th class="n">YTH</th><th class="n">CHD</th><th class="n">${LANG==='da'?'BOOK':'BKGS'}</th><th class="big">${T('prebookedCaps')}</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    }).join('');
+    return `<section class="ps-svc">
+      <div class="ps-svc-bar">${T(svc.id)}<span class="r">${fmt(svc.covers)}<small>${T('prebooked')}</small></span></div>
+      ${outlets}
+    </section>`;
+  }).join('');
+
+  return `<div class="ps-page">
+    <div class="ps-head">
+      ${logoForPrint()}
+      <div class="who">${hasRealLogo() ? '' : 'Smyril Line'}<span>MS Norröna · ${T('footer')}</span></div>
+      <div class="when"><b>${longDate(day.date)}</b><span>${T('prebooked')}</span></div>
+    </div>
+    <div class="ps-kpis">
+      <div class="ps-kpi fill"><div class="k">${T('anTotal')}</div><div class="v">${fmt(day.covers)}</div><div class="s">${T('kpiTotalNote')}</div></div>
+      <div class="ps-kpi"><div class="k">${T('kpiBookings')}</div><div class="v">${fmt(day.bookings)}</div><div class="s">${tf('kpiBookingsNote',{n:(day.covers/Math.max(day.bookings,1)).toFixed(1)})}</div></div>
+      <div class="ps-kpi"><div class="k">${T('kpiSeatings')}</div><div class="v">${fmt(day.seatings)}</div><div class="s">${tf('kpiSeatingsNote',{n:day.outlets.length,s:day.outlets.length===1?'':LANG==='da'?'er':'s'})}</div></div>
+      <div class="ps-kpi"><div class="k">${T('kpiPeak')}</div><div class="v">${fmt(day.peak)}</div><div class="s">${day.peakSlot ? esc(day.peakSlot.time+' · '+day.peakSlot.outlet) : '—'}</div></div>
+    </div>
+    ${services}
+    <div class="ps-foot">
+      <span>★ ${T('busiest')} · ADL ${VALUE_LABELS.ADL[LANG]} · YTH ${VALUE_LABELS.YTH[LANG]} · CHD ${VALUE_LABELS.CHD[LANG]}</span>
+      <span>${LANG==='da'?'Udskrevet':'Printed'} ${new Date().toLocaleDateString(STR[LANG].locale)} · ${esc($('fileMeta').textContent || '')}</span>
+    </div>
+  </div>`;
+}
+function buildPrintSheet(days){ $('printsheet').innerHTML = days.map(printPage).join(''); }
+
+function openPrintPanel(){
+  if (!MODEL) return;
+  printPick = new Set([dayIndex]);
+  drawPrintPanel();
+  $('printpanel').classList.add('show');
+}
+function drawPrintPanel(){
+  $('ppdays').innerHTML = MODEL.days.map((d,i) => `
+    <button class="ppday" data-pp="${i}" aria-pressed="${printPick.has(i)}">
+      <span class="box">✓</span>
+      <span>
+        <span class="d">${T('weekdaysShort')[d.date.getDay()]} ${pad(d.date.getDate())}.${pad(d.date.getMonth()+1)}</span>
+        <span class="c">${fmt(d.covers)} ${T('prebooked')}</span>
+      </span>
+    </button>`).join('');
+  const n = printPick.size;
+  $('ppcount').textContent = n ? tf('ppcount',{n, s:n===1?'':(LANG==='da'?'e':'s')}) : T('ppnone');
+  $('ppGo').disabled = !n;
+  $('ppGo').style.opacity = n ? 1 : .45;
+}
+function doPrint(){
+  const days = [...printPick].sort((a,b) => a-b).map(i => MODEL.days[i]);
+  if (!days.length) return;
+  buildPrintSheet(days);
+  $('printpanel').classList.remove('show');
+  setTimeout(() => { window.print(); buildPrintSheet([MODEL.days[dayIndex]]); }, 60);
+}
+
+function copySummary(){
+  if (!MODEL) return;
+  const day = MODEL.days[dayIndex];
+  const lines = ['MS NORRÖNA — ' + T('prebookedCaps'),
+    `${longDate(day.date)} — ${fmt(day.covers)} ${T('prebooked')}, ${day.bookings} ${T('bookings')}`];
+  day.byService.forEach(svc => {
+    lines.push('', T(svc.id).toUpperCase());
+    svc.outlets.forEach(o => {
+      lines.push(`  ${o.name} — ${o.covers}`);
+      o.slots.forEach(s => lines.push(`    ${s.time}  ${s.covers}`));
+    });
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(
+    () => toast(T('copied')), () => toast(T('copyFail')));
+}
+
+/* ---------------- events ---------------- */
+document.addEventListener('click', e => {
+  const lang = e.target.closest('[data-lang]');
+  if (lang){ setLang(lang.dataset.lang); return; }
+  const tb = e.target.closest('.tab');
+  if (tb){ tab = tb.dataset.tab; render(); return; }
+  const pp = e.target.closest('.ppday');
+  if (pp){
+    const i = +pp.dataset.pp;
+    printPick.has(i) ? printPick.delete(i) : printPick.add(i);
+    drawPrintPanel(); return;
+  }
+  const chip = e.target.closest('.daychip');
+  if (chip){ dayIndex = +chip.dataset.day; openSlots.clear(); openOutlets.clear(); render(); return; }
+  if (e.target.closest('#expandAll')){ toggleAll(); return; }
+  const f = e.target.closest('.chip');
+  if (f && f.dataset.outlet !== undefined){ outletFilter = f.dataset.outlet; render(); return; }
+  const oh = e.target.closest('.outlet-head');
+  if (oh){
+    const k = oh.dataset.out;
+    openOutlets.has(k) ? openOutlets.delete(k) : openOutlets.add(k);
+    render(); return;
+  }
+  const slot = e.target.closest('.slot');
+  if (slot){
+    const k = slot.dataset.slot;
+    openSlots.has(k) ? openSlots.delete(k) : openSlots.add(k);
+    render(); return;
+  }
+  const th = e.target.closest('th.s');
+  if (th){
+    const c = th.dataset.sort;
+    anSort = (anSort.col === c) ? { col:c, dir:-anSort.dir } : { col:c, dir: c === 'label' ? 1 : -1 };
+    renderAnalysis(); return;
+  }
+});
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'q'){
+    query = e.target.value;
+    const pos = e.target.selectionStart;
+    render();
+    const q2 = $('q'); if (q2){ q2.focus(); q2.setSelectionRange(pos,pos); }
+  }
+  if (e.target.id === 'anQ'){ anQuery = e.target.value; renderAnalysis(); }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'anScope'){ anScope = e.target.value; renderAnalysis(); }
+  if (e.target.id === 'anDim'){ anDim = e.target.value; renderAnalysis(); }
+  if (e.target.id === 'anSplit'){ anSplit = e.target.value; renderAnalysis(); }
+  if (e.target.dataset && e.target.dataset.filter){
+    anFilters[e.target.dataset.filter] = e.target.value;
+    renderAnalysis();
+  }
+});
+
+$('btnPick').addEventListener('click', () => $('fileInput').click());
+$('btnNew').addEventListener('click', () => $('fileInput').click());
+$('fileInput').addEventListener('change', e => { if (e.target.files[0]) readFile(e.target.files[0]); });
+$('btnPrint').addEventListener('click', openPrintPanel);
+$('btnCopy').addEventListener('click', copySummary);
+$('btnCopyTable').addEventListener('click', copyTable);
+$('ppCancel').addEventListener('click', () => $('printpanel').classList.remove('show'));
+$('ppAll').addEventListener('click', () => { MODEL.days.forEach((d,i) => printPick.add(i)); drawPrintPanel(); });
+$('ppNone').addEventListener('click', () => { printPick.clear(); drawPrintPanel(); });
+$('ppGo').addEventListener('click', doPrint);
+$('printpanel').addEventListener('click', e => { if (e.target.id === 'printpanel') $('printpanel').classList.remove('show'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('printpanel').classList.remove('show'); });
+
+let dragDepth = 0;
+const hasFiles = e => e.dataTransfer && [...(e.dataTransfer.types||[])].includes('Files');
+const veil = show => {
+  $('dropveil').classList.toggle('show', show);
+  const card = $('dropcard'); if (card) card.classList.toggle('hot', show);
+};
+window.addEventListener('dragenter', e => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; veil(true); });
+window.addEventListener('dragover', e => { if (hasFiles(e)){ e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } });
+window.addEventListener('dragleave', e => { if (!hasFiles(e)) return; dragDepth = Math.max(0, dragDepth-1); if (!dragDepth) veil(false); });
+window.addEventListener('drop', e => {
+  if (!hasFiles(e)) return;
+  e.preventDefault(); dragDepth = 0; veil(false);
+  const f = e.dataTransfer.files[0];
+  if (!f) return;
+  if (/^image\//.test(f.type) || /\.(svg|png|jpe?g|webp)$/i.test(f.name)){
+    const r = new FileReader();
+    r.onload = () => setLogo(r.result, false);
+    r.readAsDataURL(f);
     return;
   }
-  var list=[].slice.call(files||[]); if(!list.length) return;
-  var done=0;
-  list.forEach(function(f){
-    var rd=new FileReader();
-    rd.onload=function(ev){
-      try{
-        var wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'});
-        var ws=wb.Sheets[wb.SheetNames[0]];
-        var aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null,blankrows:false});
-        var rec=CORE.toRecords(aoa);
-        if(!rec.rows.length){ toast('Ingen data fundet i '+f.name); return; }
-        var meta=CORE.classify(rec.columns,rec.rows);
-        DS.push({ id:'ds'+Date.now()+Math.random().toString(36).slice(2,6),
-                  label:niceName(f.name), file:f.name, rows:rec.rows, meta:meta,
-                  color:COLORS[DS.length%COLORS.length] });
-      }catch(err){ console.error(err); toast('Kunne ikke læse '+f.name); }
-      done++;
-      if(done===list.length){
-        document.getElementById('dropzone').style.display = DS.length? 'none':'block';
-        document.getElementById('app').style.display = DS.length? 'block':'none';
-        if(DS.length) toast(DS.length===1? 'Indlæst · '+DS[0].rows.length+' besvarelser' : DS.length+' datasæt indlæst');
-        render();
-      }
-    };
-    rd.readAsArrayBuffer(f);
-  });
-}
-function niceName(fn){
-  var s=fn.replace(/\.(xlsx|xls|csv)$/i,'');
-  s=s.replace(/your[_ ]?opinion[_ ]?matters([_ ]?to[_ ]?us)?/i,'').replace(/[_]+/g,' ').replace(/\s+/g,' ').trim();
-  s=s.replace(/^\d{4}-\d{2}-\d{2}[ _]?\d{2}[ _:]\d{2}[ _:]\d{2}\s*/,'').trim();
-  return s.slice(0,42) || fn.slice(0,30);
-}
+  readFile(f);
+});
 
-/* ------------------------- afledt data ------------------------- */
-var FORCE = {};   // ekstra kolonner brugeren har slået TIL som vurderingsspørgsmål
-function ratings(ds){ return ds.meta.filter(function(m){
-  if(!m.scale) return false;
-  if(m.type==='rating') return !HIDDEN[m.k];
-  return !!FORCE[m.k];
-}); }
-function candidates(ds){ return ds.meta.filter(function(m){ return m.candidate && m.n>3; }); }
-function setScale(k, sc){ DS.forEach(function(d){ d.meta.forEach(function(m){ if(m.k===k && m.scale) m.scale = sc || m.autoScale; }); }); }
-function cats(ds){ return ds.meta.filter(function(m){ return m.type==='cat' && m.n>=3; }); }
-function texts(ds){ return ds.meta.filter(function(m){ return m.type==='text'; }); }
-function findCol(ds, rx){ for(var i=0;i<ds.meta.length;i++){ if(rx.test(ds.meta[i].col)) return ds.meta[i]; } return null; }
-function countryCol(ds){ return findCol(ds,/^country$|nationalit|country of residence/i) || null; }
-function ageCol(ds){ return findCol(ds,/segment:\s*age/i) || findCol(ds,/tell us your age$/i) || null; }
-function commentCol(ds){
-  var t=texts(ds); if(!t.length) return null;
-  var best=null;
-  t.forEach(function(m){ if(/improve|thoughts|comment|feedback|share/i.test(m.col)) best=m; });
-  return best || t.sort(function(a,b){return b.n-a.n;})[0];
-}
-function rowsOf(ds){
-  var keys=Object.keys(FILTERS).filter(function(k){ return FILTERS[k]; });
-  if(!keys.length) return ds.rows;
-  return ds.rows.filter(function(r){
-    for(var i=0;i<keys.length;i++){
-      var m=null;
-      for(var j=0;j<ds.meta.length;j++){ if(ds.meta[j].k===keys[i]){ m=ds.meta[j]; break; } }
-      if(!m) continue;
-      var v=r[m.col]; if(CORE.isBlank(v)) return false;
-      var parts=m.multi? CORE.splitVals(v):[CORE.norm(v)];
-      if(parts.indexOf(FILTERS[keys[i]])<0) return false;
-    }
-    return true;
-  });
-}
-function matchMeta(ds, k){ for(var i=0;i<ds.meta.length;i++){ if(ds.meta[i].k===k) return ds.meta[i]; } return null; }
-
-/* ------------------------- chrome ------------------------- */
-function render(){
-  renderDsBar(); renderFilters(); renderTabs();
-  var v=document.getElementById('view');
-  try{
-    if(TAB==='overblik') v.innerHTML=viewOverview();
-    else if(TAB==='nation') v.innerHTML=viewDim(countryCol(DS[ACTIVE]),'Nationalitet');
-    else if(TAB==='alder') v.innerHTML=viewDim(ageCol(DS[ACTIVE]),'Aldersgruppe');
-    else if(TAB==='segment') v.innerHTML=viewSegment();
-    else if(TAB==='fokus') v.innerHTML=viewFocus();
-    else if(TAB==='profil') v.innerHTML=viewProfile();
-    else if(TAB==='kommentarer') v.innerHTML=viewComments();
-    else if(TAB==='sammenlign') v.innerHTML=viewCompare();
-  }catch(err){ console.error(err); v.innerHTML='<div class="empty">Noget gik galt i denne visning: '+esc(err.message)+'</div>'; }
-  wireView();
-}
-function renderDsBar(){
-  var el=document.getElementById('dsbar'), h='';
-  DS.forEach(function(d,i){
-    h+='<div class="chip '+(i===ACTIVE?'on':'')+'" data-i="'+i+'">'
-      +'<span class="dot" style="background:'+d.color+'"></span>'
-      +'<span class="nm">'+esc(d.label)+'</span>'
-      +'<span class="n">'+d.rows.length+' svar</span>'
-      +'<span class="x" data-del="'+i+'" title="Fjern">×</span></div>';
-  });
-  h+='<button class="sm ghost" onclick="document.getElementById(\'fileInput\').click()">＋ Tilføj datasæt</button>';
-  h+='<span style="color:var(--dim);font-size:12px">'+(DS.length>1?'Klik for at gøre aktivt · dobbeltklik for at omdøbe':'Dobbeltklik for at omdøbe')+'</span>'+hlp('datasaet');
-  el.innerHTML=h;
-  el.querySelectorAll('.chip').forEach(function(c){
-    c.addEventListener('click',function(e){
-      if(e.target.dataset.del!=null){ DS.splice(+e.target.dataset.del,1); if(ACTIVE>=DS.length) ACTIVE=Math.max(0,DS.length-1);
-        if(!DS.length){ document.getElementById('app').style.display='none'; document.getElementById('dropzone').style.display='block'; return; }
-        render(); return; }
-      ACTIVE=+c.dataset.i; render();
-    });
-    c.addEventListener('dblclick',function(){
-      var n=prompt('Navn på datasæt:',DS[+c.dataset.i].label);
-      if(n){ DS[+c.dataset.i].label=n; render(); }
-    });
-  });
-}
-function renderFilters(){
-  var ds=DS[ACTIVE], el=document.getElementById('filters');
-  var prefer=['country','segment: age','5. what was the destination of your trip?','product','8. what cabin type did you book?','6. which service did you book?'];
-  var cs=cats(ds).slice();
-  cs.sort(function(a,b){
-    var ia=prefer.indexOf(a.k), ib=prefer.indexOf(b.k);
-    if(ia<0) ia=99; if(ib<0) ib=99;
-    return ia-ib || b.n-a.n;
-  });
-  var h='<span class="lbl">Filtre'+hlp('filtre')+'</span>';
-  cs.slice(0,5).forEach(function(m){
-    var g=CORE.groupBy(ds.rows,m.col,m.multi);
-    var opts=Object.keys(g).sort(function(a,b){return g[b].length-g[a].length;});
-    h+='<select data-f="'+esc(m.k)+'"><option value="">'+esc(m.short.slice(0,26))+': alle</option>'
-      + opts.map(function(o){ return '<option value="'+esc(o)+'"'+(FILTERS[m.k]===o?' selected':'')+'>'+esc(m.k==='country'?ccName(o):o)+' ('+g[o].length+')</option>'; }).join('')
-      + '</select>';
-  });
-  h+='<label class="inline">Min. svar/gruppe'+hlp('minn')+' <input type="range" id="minN" min="1" max="30" value="'+MINN+'"><b class="mono" id="minNv">'+MINN+'</b></label>';
-  var nAct=Object.keys(FILTERS).filter(function(k){return FILTERS[k];}).length;
-  if(nAct) h+='<button class="sm" id="clearF">Nulstil filtre ('+nAct+')</button>';
-  var nf=rowsOf(ds).length;
-  h+='<span style="margin-left:auto;color:var(--mut);font-size:12.5px" class="mono">'+nf+' / '+ds.rows.length+' besvarelser</span>';
-  var cand=candidates(ds), act=ratings(ds);
-  h+='<details class="fields" style="width:100%"><summary>Vurderingsspørgsmål &amp; skalaer ('+act.length+' med i scoren) — klik for at justere</summary><p class="sub" style="margin:8px 0 0">'+esc(HELP.felter.d)+'</p><div class="fieldgrid">'
-    + cand.map(function(m){
-        var on = (m.type==='rating' && !HIDDEN[m.k]) || FORCE[m.k];
-        var opts=[4,5,7,10].map(function(v){ return '<option value="'+v+'"'+(m.scale===v?' selected':'')+'>1–'+v+'</option>'; }).join('');
-        return '<label><input type="checkbox" data-fld="'+esc(m.k)+'" data-t="'+m.type+'"'+(on?' checked':'')+'> '
-          + '<span style="flex:1;overflow:hidden;text-overflow:ellipsis" title="'+esc(m.label)+'">'+esc(m.short)+'</span>'
-          + '<span style="color:var(--dim)">n='+m.n+'</span>'
-          + '<select data-sc="'+esc(m.k)+'" style="padding:2px 5px;font-size:11.5px">'+opts+'</select></label>';
-      }).join('')
-    + '</div><p class="sub" style="margin-top:10px">Skalaen gættes ud fra svarene. Er et spørgsmål fx 1–5, men ingen gav 5, så ret skalaen her — indekset regnes om automatisk.</p></details>';
-  el.innerHTML=h;
-  el.querySelectorAll('select[data-f]').forEach(function(s){
-    s.addEventListener('change',function(){ FILTERS[s.dataset.f]=s.value; render(); });
-  });
-  var mn=document.getElementById('minN');
-  if(mn) mn.addEventListener('change',function(){ MINN=+mn.value; render(); });
-  if(mn) mn.addEventListener('input',function(){ document.getElementById('minNv').textContent=mn.value; });
-  var cf=document.getElementById('clearF'); if(cf) cf.addEventListener('click',function(){ FILTERS={}; render(); });
-  el.querySelectorAll('input[data-fld]').forEach(function(cb){
-    cb.addEventListener('change',function(){
-      var k=cb.dataset.fld;
-      if(cb.dataset.t==='rating') HIDDEN[k]=!cb.checked; else FORCE[k]=cb.checked;
+function readFile(file){
+  const msg = $('parseMsg');
+  msg.className = 'msg'; msg.textContent = (LANG==='da'?'Læser ':'Reading ') + file.name + ' …';
+  const fr = new FileReader();
+  fr.onload = () => {
+    try{
+      const wb = XLSX.read(new Uint8Array(fr.result), { type:'array', cellDates:true });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header:1, raw:true, defval:null, blankrows:false });
+      MODEL = buildModel(rows);
+      if (!MODEL.days.length) throw new Error(LANG==='da' ? 'Ingen bookingrækker fundet i filen.' : 'No booking rows found in that file.');
+      dayIndex = 0; outletFilter = 'all'; query = ''; anQuery = ''; anFilters = {};
+      openSlots.clear(); openOutlets.clear();
+      anDim = 'outlet'; anSplit = ''; anScope = 'day'; tab = 'board';
+      msg.textContent = '';
+      $('dropzone').classList.add('hidden');
+      $('board').classList.remove('hidden');
+      $('tools').classList.remove('hidden');
+      $('subline').textContent = T('ledeLoaded');
+      $('fileMeta').textContent = file.name;
+      buildAnalysisControls();
       render();
-    });
-  });
-  el.querySelectorAll('select[data-sc]').forEach(function(sc){
-    sc.addEventListener('change',function(){ setScale(sc.dataset.sc, +sc.value); render(); });
-  });
-}
-function renderTabs(){
-  var t=[['overblik','Overblik'],['nation','Nationalitet'],['alder','Alder'],['segment','Segmenter'],
-         ['fokus','Fokusområder'],['profil','Gæsteprofil'],['kommentarer','Kommentarer']];
-  if(DS.length>1) t.push(['sammenlign','Sammenlign ('+DS.length+')']);
-  document.getElementById('tabs').innerHTML = t.map(function(x){
-    return '<button data-t="'+x[0]+'" class="'+(TAB===x[0]?'on':'')+'">'+x[1]+'</button>';
-  }).join('');
-  document.getElementById('tabs').querySelectorAll('button').forEach(function(b){
-    b.addEventListener('click',function(){ TAB=b.dataset.t; render(); });
-  });
+    }catch(err){
+      msg.className = 'msg bad'; msg.textContent = err.message;
+      if (!$('board').classList.contains('hidden')) toast(err.message);
+    }
+  };
+  fr.onerror = () => { msg.className = 'msg bad'; msg.textContent = LANG==='da' ? 'Filen kunne ikke læses. Prøv at eksportere den igen.' : 'That file could not be read. Try exporting it again.'; };
+  fr.readAsArrayBuffer(file);
 }
 
-/* ------------------------- byggeklodser ------------------------- */
-function bar(pct,color){
-  return '<div class="track"><div class="fill" style="width:'+Math.max(0,Math.min(100,pct))+'%;background:linear-gradient(90deg,'+color+'99,'+color+')"></div></div>';
-}
-function distBar(st){
-  var c=distColors(st.scale), h='<div class="dist">';
-  for(var i=1;i<=st.scale;i++){
-    var v=(st.dist[i]||0)/st.n*100;
-    if(v>0) h+='<i style="width:'+v+'%;background:'+c[i]+'" title="'+i+': '+(st.dist[i]||0)+' ('+f0(v)+'%)"></i>';
-  }
-  return h+'</div>';
-}
-function distLegend(scale){
-  var c=distColors(scale), h='<div class="legend">';
-  for(var i=1;i<=scale;i++) h+='<span><b style="background:'+c[i]+'"></b>'+i+'</span>';
-  return h+'<span style="color:var(--dim)">1 = dårligst · '+scale+' = bedst</span></div>';
-}
-function qList(rows, rs, opts){
-  opts=opts||{};
-  var items=[];
-  rs.forEach(function(m){ var st=CORE.stat(rows,m.col,m.scale); if(st) items.push({m:m,st:st}); });
-  items.sort(function(a,b){ return (opts.asc?1:-1)*(b.st.index-a.st.index); });
-  if(opts.limit) items=items.slice(0,opts.limit);
-  if(!items.length) return '<div class="empty">Ingen vurderingsspørgsmål fundet.</div>';
-  var h='';
-  items.forEach(function(it){
-    h+='<div class="qrow"><div class="qname" title="'+esc(it.m.label)+'">'+esc(it.m.short)
-      +'<span class="n">n='+it.st.n+' · skala 1–'+it.st.scale+'</span></div>'
-      +'<div>'+(opts.dist? distBar(it.st) : bar(it.st.index, idxColor(it.st.index)))+'</div>'
-      +'<div class="score" style="color:'+idxColor(it.st.index)+'">'+f1(it.st.avg)+'<span style="color:var(--dim);font-size:10.5px">/'+it.st.scale+'</span></div></div>';
-  });
-  return h;
-}
-function kpi(cap,val,note,color,hk){
-  return '<div class="card kpi accent"><div class="cap">'+cap+(hk?hlp(hk):'')+'</div><div class="val" style="color:'+(color||'var(--ink)')+'">'+val+'</div>'
-    +(note?'<div class="note">'+note+'</div>':'')+'</div>';
-}
-
-/* ------------------------- 1. Overblik ------------------------- */
-function viewOverview(){
-  var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
-  if(!rs.length) return '<div class="empty">Ingen vurderingsspørgsmål blev genkendt i dette datasæt.</div>';
-  var oi=CORE.overallIndex(rows,rs);
-  var items=rs.map(function(m){ return {m:m, st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;});
-  items.sort(function(a,b){ return b.st.index-a.st.index; });
-  var best=items[0], worst=items[items.length-1];
-  var rec=null; rs.forEach(function(m){ if(/recommend/i.test(m.col)) rec=m; });
-  var recSt = rec? CORE.stat(rows,rec.col,rec.scale) : null;
-  var critical = rows.filter(function(r){ var v=CORE.respondentIndex(r,rs,3); return v!=null && v<50; }).length;
-
-  var h=intro('Ét samlet billede af perioden: nøgletal øverst, derefter alle spørgsmål rangeret fra bedst til svagest. Alle tal følger de filtre du har sat.','samlet');
-  h+='<div class="grid g4">';
-  h+=kpi('Besvarelser', rows.length, (rows.length!==ds.rows.length? 'af '+ds.rows.length+' i filen':'i perioden'), null, 'besvarelser');
-  h+=kpi('Tilfredshedsindeks', oi? f1(oi.index) : '–', 'gns. af alle spørgsmål, 0–100', idxColor(oi?oi.index:null), 'samlet');
-  h+=kpi('Højeste score', best? f1(best.st.avg)+' <span style="font-size:15px;color:var(--dim)">/'+best.st.scale+'</span>':'–', best? esc(best.m.short):'', 'var(--good)', 'hoejeste');
-  h+=kpi('Laveste score', worst? f1(worst.st.avg)+' <span style="font-size:15px;color:var(--dim)">/'+worst.st.scale+'</span>':'–', worst? esc(worst.m.short):'', 'var(--bad)', 'laveste');
-  if(recSt) h+=kpi('Vil anbefale os', f1(recSt.avg)+' <span style="font-size:15px;color:var(--dim)">/'+recSt.scale+'</span>', f0(recSt.top)+'% giver topkarakter', idxColor(recSt.index), 'anbefale');
-  h+=kpi('Utilfredse gæster', f0(critical/Math.max(1,rows.length)*100)+'%', critical+' med samlet indeks under 50', critical? 'var(--warn)':'var(--good)', 'utilfredse');
-  h+='</div>';
-
-  if(DS.length>1){
-    h+='<div class="sect-title">Alle datasæt · samlet indeks'+hlp('datasaet')+'</div><div class="card"><div class="mbars">';
-    DS.forEach(function(d){
-      var r2=rowsOf(d), o2=CORE.overallIndex(r2,ratings(d));
-      h+='<div class="mbar" style="padding:5px 0"><div class="lb" style="width:150px;color:var(--ink);font-weight:600">'+esc(d.label)+'</div>'
-        +'<div class="track" style="height:12px">'+(o2?'<div class="fill" style="width:'+o2.index+'%;background:linear-gradient(90deg,'+d.color+'88,'+d.color+')"></div>':'')+'</div>'
-        +'<div class="sc" style="width:52px;font-size:13px">'+(o2?f1(o2.index):'–')+'</div>'
-        +'<div class="lb" style="width:70px;text-align:right">'+r2.length+' svar</div></div>';
-    });
-    h+='</div></div>';
-  }
-
-  h+='<div class="sect-title">Alle spørgsmål · rangeret</div>';
-  h+='<div class="grid g2">';
-  h+='<div class="card"><h3>Gennemsnit pr. spørgsmål'+hlp('gns')+'</h3><p class="sub">Bjælken viser indekset 0–100'+hlp('indeks')+' — tallet til højre er det rå gennemsnit med skalaen bagefter'+hlp('skala')+'. Sorteret efter indeks, svagest nederst.</p>'+qList(rows,rs)+'</div>';
-  var maxSc=Math.max.apply(null,rs.map(function(m){return m.scale;}));
-  h+='<div class="card"><h3>Svarfordeling'+hlp('fordeling')+'</h3><p class="sub">Hvor mange gav 1, 2, 3 … pr. spørgsmål</p>'+qList(rows,rs,{dist:true})+distLegend(maxSc)
-    +(rs.some(function(m){return m.scale!==maxSc;})? '<p class="sub" style="margin-top:6px">Bemærk: nogle spørgsmål bruger en 1–4-skala — se skalaen ud for hvert spørgsmål.</p>':'')+'</div>';
-  h+='</div>';
-
-  // top/bund kort
-  h+='<div class="sect-title">Hurtig aflæsning</div><div class="grid g3">';
-  h+='<div class="card"><h3 style="color:var(--good)">Det går stærkt her'+hlp('hoejeste')+'</h3><p class="sub">De tre spørgsmål med højest indeks</p>'+qList(rows,rs,{limit:3})+'</div>';
-  var low=items.slice(-3).reverse().map(function(x){return x.m;});
-  h+='<div class="card"><h3 style="color:var(--bad)">Her scorer vi lavest'+hlp('laveste')+'</h3><p class="sub">De tre spørgsmål med lavest indeks</p>'+qList(rows,low,{asc:true})+'</div>';
-  var crit=items.slice().sort(function(a,b){return b.st.low-a.st.low;}).slice(0,3);
-  h+='<div class="card"><h3 style="color:var(--warn)">Flest kritiske svar'+hlp('kritiske')+'</h3><p class="sub">Andel der svarer 1 eller 2 — uanset gennemsnittet</p>'
-    + crit.map(function(x){ return '<div class="qrow"><div class="qname">'+esc(x.m.short)+'</div><div>'+bar(x.st.low,'#E05B4B')+'</div><div class="score">'+f0(x.st.low)+'%</div></div>'; }).join('')
-    + '</div>';
-  h+='</div>';
-  return h;
-}
-
-/* ------------------------- 2/3. Dimension (nationalitet, alder) ------------------------- */
-function viewDim(meta, title){
-  var ds=DS[ACTIVE];
-  if(!meta) return '<div class="empty">Kolonnen for '+title.toLowerCase()+' blev ikke fundet i dette datasæt. Brug fanen «Segmenter» og vælg selv en opdeling.</div>';
-  return dimReport(ds, meta, title);
-}
-function dimReport(ds, meta, title){
-  var rows=rowsOf(ds), rs=ratings(ds);
-  var g=CORE.groupBy(rows,meta.col,meta.multi);
-  var names=Object.keys(g).filter(function(k){ return g[k].length>=MINN; })
-              .sort(function(a,b){ return g[b].length-g[a].length; });
-  var small=Object.keys(g).filter(function(k){ return g[k].length<MINN; });
-  if(!names.length) return '<div class="empty">Ingen grupper med mindst '+MINN+' besvarelser. Skru ned for «Min. svar/gruppe».</div>';
-  var lbl = /country|nationalit/i.test(meta.col) ? ccName : function(x){return x;};
-
-  var overall=CORE.overallIndex(rows,rs);
-  var h=intro('Samme spørgsmål set på tværs af '+title.toLowerCase()+'. Grupper med under '+MINN+' besvarelser er udeladt — det justerer du med «Min. svar/gruppe» i filterbjælken.','minn')
-    +'<div class="sect-title">'+title+' · samlet indeks'+hlp('samlet')+'</div><div class="grid g2">';
-  h+='<div class="card"><h3>Rangering'+hlp('rangering')+'</h3><p class="sub">Samlet indeks pr. gruppe · sidste kolonne er afvigelsen'+hlp('delta')+' fra totalen på '+(overall?f1(overall.index):'–')+'</p>';
-  var ranked=names.map(function(nm){ var o=CORE.overallIndex(g[nm],rs); return {nm:nm,o:o,n:g[nm].length}; })
-                  .filter(function(x){return x.o;}).sort(function(a,b){return b.o.index-a.o.index;});
-  ranked.forEach(function(x){
-    var d = overall? x.o.index-overall.index : 0;
-    h+='<div class="qrow" style="grid-template-columns:1fr 220px 60px 60px"><div class="qname">'+esc(lbl(x.nm))+'<span class="n">n='+x.n+'</span></div>'
-      +'<div>'+bar(x.o.index, idxColor(x.o.index))+'</div>'
-      +'<div class="score">'+f1(x.o.index)+'</div>'
-      +'<div class="score delta '+(d>1?'up':(d<-1?'down':'flat'))+'">'+(d>0?'+':'')+f1(d)+'</div></div>';
-  });
-  h+='</div>';
-
-  // bedste/værste spørgsmål pr. gruppe
-  h+='<div class="card"><h3>Stærkeste og svageste pr. gruppe'+hlp('stbedst')+'</h3><p class="sub">Hvilket spørgsmål trækker op og ned inden for hver gruppe</p>'
-    +'<div class="tblwrap" style="max-height:none"><table><thead><tr><th class="stick">'+esc(title)+'</th><th>Svar'+hlp('n')+'</th><th>Bedst</th><th>Svagest</th></tr></thead><tbody>';
-  ranked.forEach(function(x){
-    var items=rs.map(function(m){ return {m:m,st:CORE.stat(g[x.nm],m.col,m.scale)}; })
-                .filter(function(z){ return z.st && z.st.n>=Math.max(3,Math.floor(MINN/2)); })
-                .sort(function(a,b){ return b.st.index-a.st.index; });
-    if(!items.length) return;
-    var b=items[0], w=items[items.length-1];
-    h+='<tr><td class="stick">'+esc(lbl(x.nm))+'</td><td class="num">'+x.n+'</td>'
-      +'<td><span class="pill" style="background:rgba(70,176,138,.15);color:#6fd3b0">'+f1(b.st.avg)+'</span> '+esc(b.m.short)+'</td>'
-      +'<td><span class="pill" style="background:rgba(224,91,75,.15);color:#f19183">'+f1(w.st.avg)+'</span> '+esc(w.m.short)+'</td></tr>';
-  });
-  h+='</tbody></table></div></div></div>';
-
-  // heatmap
-  h+='<div class="sect-title">Varmekort · spørgsmål × '+title.toLowerCase()+hlp('heatmap')+'</div>';
-  h+='<div class="card"><p class="sub">Tallet er gennemsnittet · farven er indekset 0–100. Grå = for få svar (under '+MINN+').'
-    +(small.length? ' Udeladt pga. få svar: '+esc(small.map(lbl).join(', ')) : '')+'</p>';
-  h+=heatmap(rows, rs, g, names, lbl, title);
-  h+='</div>';
-  return h;
-}
-function heatmap(rows, rs, g, names, lbl, title){
-  var items=rs.map(function(m){ return {m:m, st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;})
-              .sort(function(a,b){ return a.st.index-b.st.index; });
-  var h='<div class="tblwrap"><table><thead><tr><th class="stick">Spørgsmål'+hlp('heatmap')+'</th><th>Alle'+hlp('gns')+'</th>';
-  names.forEach(function(nm){ h+='<th style="text-align:center">'+esc(lbl(nm))+'<br><span style="color:var(--dim);font-weight:500">n='+g[nm].length+'</span></th>'; });
-  h+='</tr></thead><tbody>';
-  items.forEach(function(it){
-    h+='<tr><td class="stick" title="'+esc(it.m.label)+'">'+esc(it.m.short)+'</td>';
-    h+='<td><span class="cell" style="background:'+idxColor(it.st.index)+'">'+f1(it.st.avg)+'</span></td>';
-    names.forEach(function(nm){
-      var st=CORE.stat(g[nm],it.m.col,it.m.scale);
-      if(!st || st.n<Math.max(3,Math.floor(MINN/2))) h+='<td><span class="cell na">–</span></td>';
-      else {
-        var d=st.avg-it.st.avg;
-        h+='<td><span class="cell" style="background:'+idxColor(st.index)+'" title="n='+st.n+' · '+(d>0?'+':'')+f1(d)+' vs. alle">'+f1(st.avg)+'</span></td>';
-      }
-    });
-    h+='</tr>';
-  });
-  h+='</tbody></table></div>';
-  return h;
-}
-
-/* ------------------------- 4. Segmenter ------------------------- */
-var SEG_DIM=null, SEG_Q='__overall__';
-function viewSegment(){
-  var ds=DS[ACTIVE], cs=cats(ds), rs=ratings(ds);
-  if(!cs.length) return '<div class="empty">Ingen kategorikolonner fundet.</div>';
-  if(!SEG_DIM || !matchMeta(ds,SEG_DIM)) SEG_DIM=(countryCol(ds)||cs[0]).k;
-  var dim=matchMeta(ds,SEG_DIM);
-  var h=intro('Vælg selv hvordan tallene skæres: opdel gæsterne efter et hvilket som helst baggrundsspørgsmål, og se enten det samlede indeks eller ét bestemt spørgsmål.','samlet')
-    +'<div class="card" style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">'
-    +'<span class="lbl" style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);font-weight:700">Opdel efter</span>'+hlp('filtre')
-    +'<select id="segDim">'+cs.map(function(m){ return '<option value="'+esc(m.k)+'"'+(m.k===SEG_DIM?' selected':'')+'>'+esc(m.short)+' ('+m.uniq+' værdier)</option>'; }).join('')+'</select>'
-    +'<span class="lbl" style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);font-weight:700">Mål</span>'
-    +'<select id="segQ"><option value="__overall__"'+(SEG_Q==='__overall__'?' selected':'')+'>Samlet tilfredshedsindeks</option>'
-    + rs.map(function(m){ return '<option value="'+esc(m.k)+'"'+(m.k===SEG_Q?' selected':'')+'>'+esc(m.short)+'</option>'; }).join('')+'</select></div>';
-
-  var rows=rowsOf(ds), g=CORE.groupBy(rows,dim.col,dim.multi);
-  var names=Object.keys(g).sort(function(a,b){ return g[b].length-g[a].length; });
-  var lbl = /country|nationalit/i.test(dim.col)? ccName : function(x){return x;};
-  var qm = SEG_Q==='__overall__'? null : matchMeta(ds,SEG_Q);
-  var base = qm? CORE.stat(rows,qm.col,qm.scale) : CORE.overallIndex(rows,rs);
-  var baseVal = base? (qm? base.avg : base.index) : null;
-
-  h+='<div class="grid g2">';
-  h+='<div class="card"><h3>'+esc(qm? qm.short : 'Samlet indeks')+' pr. '+esc(dim.short.toLowerCase())+(qm?hlp('gns'):hlp('samlet'))+'</h3>'
-    +'<p class="sub">Grupper med under '+MINN+' svar vises nedtonet'+hlp('minn')+' · sidste kolonne er afvigelsen fra totalen'+hlp('delta')+'</p>';
-  var rank=[];
-  names.forEach(function(nm){
-    var st = qm? CORE.stat(g[nm],qm.col,qm.scale) : CORE.overallIndex(g[nm],rs);
-    if(!st) return;
-    rank.push({nm:nm, val:(qm? st.avg : st.index), idx:(qm? st.index : st.index), n:g[nm].length, sn:(qm?st.n:st.n)});
-  });
-  rank.sort(function(a,b){ return b.idx-a.idx; });
-  rank.forEach(function(x){
-    var faded = x.n<MINN;
-    h+='<div class="qrow" style="grid-template-columns:1fr 200px 56px 56px;'+(faded?'opacity:.42':'')+'">'
-      +'<div class="qname">'+esc(lbl(x.nm))+'<span class="n">n='+x.sn+'</span></div>'
-      +'<div>'+bar(x.idx, idxColor(x.idx))+'</div>'
-      +'<div class="score">'+f1(x.val)+'</div>'
-      +'<div class="score delta '+(baseVal!=null&&x.val-baseVal>0.1?'up':(baseVal!=null&&x.val-baseVal<-0.1?'down':'flat'))+'">'
-      +(baseVal!=null? (x.val-baseVal>0?'+':'')+f1(x.val-baseVal) : '')+'</div></div>';
-  });
-  h+='</div>';
-
-  h+='<div class="card"><h3>Fordeling'+hlp('andel')+'</h3><p class="sub">Hvor mange besvarelser i hver gruppe</p>';
-  var tot=rows.length;
-  names.forEach(function(nm){
-    var p=g[nm].length/tot*100;
-    h+='<div class="qrow" style="grid-template-columns:1fr 200px 70px"><div class="qname">'+esc(lbl(nm))+'</div><div>'
-      +bar(p,'#2FA8B8')+'</div><div class="score">'+g[nm].length+' <span style="color:var(--dim);font-size:11.5px">'+f0(p)+'%</span></div></div>';
-  });
-  h+='</div></div>';
-
-  var names2=names.filter(function(n){ return g[n].length>=MINN; });
-  if(names2.length){
-    h+='<div class="sect-title">Varmekort · alle spørgsmål × '+esc(dim.short.toLowerCase())+hlp('heatmap')+'</div><div class="card">'
-      +heatmap(rows,rs,g,names2,lbl,dim.short)+'</div>';
-  }
-  return h;
-}
-
-/* ------------------------- 5. Fokusområder ------------------------- */
-function viewFocus(){
-  var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
-  var items=rs.map(function(m){ return {m:m,st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;})
-              .sort(function(a,b){ return a.st.index-b.st.index; });
-  if(!items.length) return '<div class="empty">Ingen data.</div>';
-
-  var h=intro('Hvor gør det ondt, og hos hvem. Øverst de tre svageste spørgsmål, dernæst hvilke grupper der trækker dem ned, og til sidst de utilfredse gæster med deres egne ord.','udsving')
-    +'<div class="sect-title">Svageste områder'+hlp('laveste')+'</div><div class="grid g3">';
-  items.slice(0,3).forEach(function(x){
-    h+='<div class="card accent"><h3>'+esc(x.m.short)+'</h3><p class="sub">'+esc(x.m.label)+'</p>'
-      +'<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">'
-      +'<span class="val mono" style="font-size:34px;font-weight:800;color:'+idxColor(x.st.index)+'">'+f1(x.st.avg)+'</span>'
-      +'<span style="color:var(--dim)">/ '+x.st.scale+'</span>'
-      +'<span class="badge '+(x.st.low>20?'b-bad':(x.st.low>10?'b-warn':'b-good'))+'" style="margin-left:auto">'+f0(x.st.low)+'% kritiske</span>'+hlp('kritiske')+'</div>'
-      +distBar(x.st)+distLegend(x.st.scale)
-      +'<div class="note" style="margin-top:10px;color:var(--mut);font-size:12.5px">'+x.st.n+' besvarelser'+hlp('n')+' · '+f0(x.st.top)+'% gav topkarakter'+hlp('top')+'</div></div>';
-  });
-  h+='</div>';
-
-  // segment-udsving
-  h+='<div class="sect-title">Største segmentudsving'+hlp('udsving')+'</div>';
-  h+='<div class="card"><p class="sub">Hvor et segment ligger markant under totalen. Kun grupper med mindst '+MINN+' besvarelser'+hlp('minn')+'. Sorteret efter afvigelse.</p>';
-  var gaps=[];
-  cats(ds).forEach(function(dim){
-    var g=CORE.groupBy(rows,dim.col,dim.multi);
-    Object.keys(g).forEach(function(nm){
-      if(g[nm].length<MINN) return;
-      items.forEach(function(x){
-        var st=CORE.stat(g[nm],x.m.col,x.m.scale);
-        if(!st || st.n<MINN) return;
-        var d=st.avg-x.st.avg;
-        if(d<-0.35) gaps.push({dim:dim, nm:nm, q:x.m, d:d, avg:st.avg, base:x.st.avg, n:st.n, low:st.low});
-      });
-    });
-  });
-  gaps.sort(function(a,b){ return a.d-b.d; });
-  if(!gaps.length) h+='<div class="empty">Ingen markante udsving fundet — svarene er ret ensartede på tværs af segmenter.</div>';
-  else{
-    h+='<div class="tblwrap"><table><thead><tr><th class="stick">Segment</th><th>Opdeling</th><th>Spørgsmål</th><th>Score'+hlp('gns')+'</th><th>Total'+hlp('gns')+'</th><th>Afvigelse'+hlp('delta')+'</th><th>Svar'+hlp('n')+'</th><th>Kritiske'+hlp('kritiske')+'</th></tr></thead><tbody>';
-    gaps.slice(0,40).forEach(function(x){
-      var lbl = /country|nationalit/i.test(x.dim.col)? ccName(x.nm) : x.nm;
-      h+='<tr><td class="stick"><b>'+esc(lbl)+'</b></td><td style="color:var(--mut)">'+esc(x.dim.short)+'</td>'
-        +'<td>'+esc(x.q.short)+'</td>'
-        +'<td class="num" style="color:'+idxColor((x.avg-1)/(x.q.scale-1)*100)+'">'+f1(x.avg)+'</td>'
-        +'<td class="num" style="color:var(--mut)">'+f1(x.base)+'</td>'
-        +'<td class="num down">'+f1(x.d)+'</td><td class="num">'+x.n+'</td>'
-        +'<td class="num">'+f0(x.low)+'%</td></tr>';
-    });
-    h+='</tbody></table></div>';
-  }
-  h+='</div>';
-
-  // utilfredse gæster
-  var cm=commentCol(ds);
-  var crit=rows.map(function(r){ return {r:r, i:CORE.respondentIndex(r,rs,3)}; })
-               .filter(function(x){ return x.i!=null && x.i<50; })
-               .sort(function(a,b){ return a.i-b.i; });
-  h+='<div class="sect-title">Utilfredse gæster ('+crit.length+')'+hlp('utilfredse')+'</div><div class="card">'
-    +'<p class="sub">Besvarelser med et samlet indeks under 50 — dem er der mest at lære af. De røde mærkater viser hvilke spørgsmål gæsten gav 1 eller 2.</p>';
-  if(!crit.length) h+='<div class="empty">Ingen besvarelser under 50 i det aktuelle udsnit. 👏</div>';
-  else{
-    var cc=countryCol(ds), ac=ageCol(ds);
-    crit.slice(0,25).forEach(function(x){
-      var txt = cm? x.r[cm.col] : null;
-      h+='<div class="cmt"><div class="meta">'
-        +'<span class="pill" style="background:'+idxColor(x.i)+';color:#0B1723">indeks '+f0(x.i)+'</span>'
-        +(cc&&x.r[cc.col]? '<span class="tag">'+esc(ccName(x.r[cc.col]))+'</span>':'')
-        +(ac&&x.r[ac.col]? '<span class="tag">'+esc(x.r[ac.col])+'</span>':'')
-        + lowScoreTags(x.r, rs)
-        +'</div>'+(txt? '<div class="txt">'+esc(txt)+'</div>' : '<div class="txt" style="color:var(--dim)">Ingen kommentar afgivet</div>')+'</div>';
-    });
-    if(crit.length>25) h+='<div class="empty">… og '+(crit.length-25)+' flere</div>';
-  }
-  h+='</div>';
-  return h;
-}
-function lowScoreTags(r, rs){
-  var out=[];
-  rs.forEach(function(m){
-    var v=CORE.num(r[m.col]);
-    if(v!==null && v<=2) out.push('<span class="tag" style="border-color:rgba(224,91,75,.4);color:#f19183">'+esc(m.short)+': '+v+'</span>');
-  });
-  if(out.length>5){ var n=out.length-5; out=out.slice(0,5); out.push('<span class="tag">+'+n+' mere</span>'); }
-  return out.join('');
-}
-
-/* ------------------------- 6. Gæsteprofil ------------------------- */
-function viewProfile(){
-  var ds=DS[ACTIVE], rows=rowsOf(ds), cs=cats(ds);
-  if(!cs.length) return '<div class="empty">Ingen kategorikolonner fundet.</div>';
-  var h=intro('Hvem har svaret, og hvad valgte de? Ingen karakterer her — kun fordelinger på baggrunds- og valgspørgsmål.','profil')
-    +'<div class="grid g3">';
-  cs.forEach(function(m){
-    var g=CORE.groupBy(rows,m.col,m.multi);
-    var names=Object.keys(g).sort(function(a,b){ return g[b].length-g[a].length; }).slice(0,12);
-    if(!names.length) return;
-    var lbl = /country|nationalit/i.test(m.col)? ccName : function(x){return x;};
-    var tot=rows.length;
-    h+='<div class="card"><h3 title="'+esc(m.label)+'">'+esc(m.short)+(m.multi?hlp('multi'):hlp('andel'))+'</h3><p class="sub">'+m.n+' svar'+(m.multi?' · flere valg muligt':'')+'</p>';
-    names.forEach(function(nm){
-      var p=g[nm].length/tot*100;
-      h+='<div class="qrow" style="grid-template-columns:1fr 110px 62px;padding:6px 0">'
-        +'<div class="qname" style="font-size:12.5px" title="'+esc(nm)+'">'+esc(lbl(nm))+'</div>'
-        +'<div>'+bar(p,'#2FA8B8')+'</div>'
-        +'<div class="score" style="font-size:12.5px">'+g[nm].length+' <span style="color:var(--dim)">'+f0(p)+'%</span></div></div>';
-    });
-    h+='</div>';
-  });
-  h+='</div>';
-  return h;
-}
-
-/* ------------------------- 7. Kommentarer ------------------------- */
-var CQ='', CFILT='all';
-function viewComments(){
-  var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
-  var tcols=texts(ds);
-  if(!tcols.length) return '<div class="empty">Ingen fritekstfelter fundet.</div>';
-  var cm=commentCol(ds);
-  var cc=countryCol(ds), ac=ageCol(ds);
-
-  var all=[];
-  rows.forEach(function(r){
-    var txt=cm? CORE.norm(r[cm.col]) : '';
-    if(!txt) return;
-    all.push({ r:r, txt:txt, i:CORE.respondentIndex(r,rs,2) });
-  });
-
-  var list=all.filter(function(x){
-    if(CFILT==='low' && !(x.i!=null && x.i<60)) return false;
-    if(CFILT==='high' && !(x.i!=null && x.i>=80)) return false;
-    if(CQ && x.txt.toLowerCase().indexOf(CQ.toLowerCase())<0) return false;
-    return true;
-  });
-  list.sort(function(a,b){ return (a.i==null?999:a.i)-(b.i==null?999:b.i); });
-
-  var h=intro('Gæsternes egne ord, sorteret med de mest utilfredse øverst. Mærkaterne ved hver kommentar viser hvem der skrev den, og hvilke spørgsmål de gav 1 eller 2.','utilfredse')
-    +'<div class="card" style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">'
-    +'<input type="search" id="cq" placeholder="Søg i kommentarer…" value="'+esc(CQ)+'" style="max-width:340px;flex:1">'
-    +'<select id="cfilt">'
-    +'<option value="all"'+(CFILT==='all'?' selected':'')+'>Alle kommentarer ('+all.length+')</option>'
-    +'<option value="low"'+(CFILT==='low'?' selected':'')+'>Kun utilfredse (indeks &lt; 60)</option>'
-    +'<option value="high"'+(CFILT==='high'?' selected':'')+'>Kun begejstrede (indeks ≥ 80)</option>'
-    +'</select>'
-    +'<span class="mono" style="color:var(--mut);font-size:12.5px;margin-left:auto">'+list.length+' viste</span></div>';
-
-  // nøgleord
-  var kws=keywords(all.map(function(x){return x.txt;}));
-  if(kws.length){
-    h+='<div class="card" style="margin-bottom:16px"><h3>Hyppigste temaer'+hlp('temaer')+'</h3><p class="sub">Klik for at filtrere kommentarerne</p>'
-      + kws.slice(0,26).map(function(k){ return '<span class="kw" data-kw="'+esc(k.w)+'">'+esc(k.w)+' <b>'+k.n+'</b></span>'; }).join('')
-      + '</div>';
-  }
-
-  if(!list.length) h+='<div class="empty">Ingen kommentarer matcher.</div>';
-  list.slice(0,300).forEach(function(x){
-    h+='<div class="cmt"><div class="meta">'
-      +(x.i!=null? '<span class="pill" style="background:'+idxColor(x.i)+';color:#0B1723">indeks '+f0(x.i)+'</span>':'')
-      +(cc&&x.r[cc.col]? '<span class="tag">'+esc(ccName(x.r[cc.col]))+'</span>':'')
-      +(ac&&x.r[ac.col]? '<span class="tag">'+esc(x.r[ac.col])+'</span>':'')
-      + lowScoreTags(x.r, rs)
-      +'</div><div class="txt">'+esc(x.txt)+'</div></div>';
-  });
-
-  // øvrige fritekstfelter
-  var others=tcols.filter(function(t){ return !cm || t.k!==cm.k; });
-  if(others.length){
-    h+='<div class="sect-title">Øvrige fritekstsvar</div><div class="grid g2">';
-    others.forEach(function(t){
-      var vals=rows.map(function(r){return CORE.norm(r[t.col]);}).filter(function(v){return v;});
-      if(!vals.length) return;
-      var cnt={}; vals.forEach(function(v){ cnt[v]=(cnt[v]||0)+1; });
-      var ks=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];}).slice(0,15);
-      h+='<div class="card"><h3>'+esc(t.short)+'</h3><p class="sub">'+vals.length+' svar</p>'
-        + ks.map(function(k){ return '<div class="qrow" style="grid-template-columns:1fr 60px;padding:6px 0"><div class="qname" style="font-size:12.5px;white-space:normal">'+esc(k)+'</div><div class="score">'+cnt[k]+'</div></div>'; }).join('')
-        + '</div>';
-    });
-    h+='</div>';
-  }
-  return h;
-}
-var STOP=('the and for was were with our not but you your that this have has had are is a an of to in on at it we us i my me they them their there here so very just too really all any some as be been by can could did do does from get got if into more most much no nor now only or other out over own same she he his her its than then these those through under until up down when where which while who whom why will would about after again against because before being below between both during each few further how'
- +' og eller det den de en et er var vi jeg du I har havde ikke men med til for på af som at der de den det man kan kunne skal vil ville være blev bliver bare rigtig meget lidt alt alle nogle igen mere mest hvor hvad hvornår hvilken fra ved om over under efter før mellem hver også kun så da når selv sig sin sit deres vores jeres dem dette disse hvis dog nok altid aldrig'
- +' und der die das ist war sind wir ich sie es ein eine nicht aber mit für auf von zu den dem des sehr auch nur noch schon sich man kann können wird werden haben hatte hat sein war waren als wie was wenn oder aber doch schon immer nie'
- +' ið og til við at er var eru vit tey tað hann hon ikki men eisini hevur hava eitt ein nakað').split(/\s+/);
-var STOPSET={}; STOP.forEach(function(w){ STOPSET[w]=1; });
-function keywords(txts){
-  var c={};
-  txts.forEach(function(t){
-    var ws=t.toLowerCase().replace(/[^\p{L}\p{N}\s'-]/gu,' ').split(/\s+/);
-    var seen={};
-    ws.forEach(function(w){
-      if(w.length<4 || STOPSET[w] || /^\d+$/.test(w)) return;
-      if(seen[w]) return; seen[w]=1;
-      c[w]=(c[w]||0)+1;
-    });
-  });
-  return Object.keys(c).filter(function(w){return c[w]>=3;}).map(function(w){return {w:w,n:c[w]};})
-    .sort(function(a,b){ return b.n-a.n; });
-}
-
-/* ------------------------- 8. Sammenlign ------------------------- */
-function viewCompare(){
-  if(DS.length<2) return '<div class="empty">Importér mindst to filer for at sammenligne.</div>';
-  var base=DS[0];
-  // fælles spørgsmål på tværs af datasæt (matchet på kolonnenavn)
-  var common=[];
-  ratings(base).forEach(function(m){
-    var ok=true, entry={m:m, per:[]};
-    DS.forEach(function(d){
-      var mm=matchMeta(d,m.k);
-      if(!mm || mm.type!=='rating'){ ok=false; return; }
-      var st=CORE.stat(rowsOf(d),mm.col,mm.scale);
-      entry.per.push(st);
-      if(!st) ok=false;
-    });
-    if(ok) common.push(entry);
-  });
-  if(!common.length) return '<div class="empty">Datasættene deler ingen fælles vurderingsspørgsmål — tjek at det er samme skema.</div>';
-
-  var h=intro('Datasættene holdt op mod hinanden. Det første datasæt er basis — alle Δ-tal måles i forhold til det. Dobbeltklik på et datasæt foroven for at omdøbe det.','sammenlign')
-    +'<div class="grid g4">';
-  DS.forEach(function(d){
-    var r=rowsOf(d), o=CORE.overallIndex(r,ratings(d));
-    var b=DS[0], ob=CORE.overallIndex(rowsOf(b),ratings(b));
-    var dd = (o&&ob&&d!==b)? o.index-ob.index : null;
-    h+='<div class="card kpi" style="border-color:'+d.color+'55"><div class="cap" style="color:'+d.color+'">'+esc(d.label)+'</div>'
-      +'<div class="val">'+(o?f1(o.index):'–')+'</div>'
-      +'<div class="note">'+r.length+' besvarelser'+(dd!=null? ' · <span class="delta '+(dd>0.5?'up':(dd<-0.5?'down':'flat'))+'">'+(dd>0?'+':'')+f1(dd)+' vs. '+esc(DS[0].label)+'</span>':' · basis')+'</div></div>';
-  });
-  h+='</div>';
-
-  h+='<div class="sect-title">Spørgsmål for spørgsmål'+hlp('sammenlign')+'</div><div class="card">'
-    +'<p class="sub">Gennemsnit pr. datasæt · Δ er sidste minus første datasæt'+hlp('delta')+' · størst tilbagegang står øverst</p>';
-  common.sort(function(a,b){ 
-    var da=(a.per[a.per.length-1].avg-a.per[0].avg), db=(b.per[b.per.length-1].avg-b.per[0].avg);
-    return da-db;
-  });
-  common.forEach(function(e){
-    var d=e.per[e.per.length-1].avg-e.per[0].avg;
-    h+='<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
-      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">'
-      +'<b style="font-size:13.5px">'+esc(e.m.short)+'</b>'
-      +'<span class="delta '+(d>0.1?'up':(d<-0.1?'down':'flat'))+'" style="margin-left:auto">'+(d>0?'▲ +':(d<0?'▼ ':'– '))+f1(d)+'</span></div>'
-      +'<div class="mbars">'
-      + DS.map(function(ds2,i){
-          var st=e.per[i]; if(!st) return '';
-          return '<div class="mbar"><div class="lb">'+esc(ds2.label)+'</div>'
-            +'<div class="track"><div class="fill" style="width:'+st.index+'%;background:linear-gradient(90deg,'+ds2.color+'88,'+ds2.color+')"></div></div>'
-            +'<div class="sc">'+f1(st.avg)+'</div><div class="lb" style="width:44px;text-align:right">n='+st.n+'</div></div>';
-        }).join('')
-      +'</div></div>';
-  });
-  h+='</div>';
-
-  // dimension-sammenligning
-  var cc=countryCol(base), ac=ageCol(base);
-  [[cc,'Nationalitet'],[ac,'Aldersgruppe']].forEach(function(pair){
-    var meta=pair[0]; if(!meta) return;
-    var lbl = /country|nationalit/i.test(meta.col)? ccName : function(x){return x;};
-    var groups={};
-    DS.forEach(function(d){
-      var mm=matchMeta(d,meta.k); if(!mm) return;
-      var g=CORE.groupBy(rowsOf(d),mm.col,mm.multi);
-      Object.keys(g).forEach(function(nm){ groups[nm]=(groups[nm]||0)+g[nm].length; });
-    });
-    var names=Object.keys(groups).sort(function(a,b){return groups[b]-groups[a];});
-    if(!names.length) return;
-    h+='<div class="sect-title">Samlet indeks pr. '+pair[1].toLowerCase()+' · på tværs af datasæt'+hlp('samlet')+'</div><div class="card"><div class="tblwrap" style="max-height:none"><table><thead><tr><th class="stick">'+pair[1]+'</th>'
-      + DS.map(function(d){ return '<th style="text-align:center;color:'+d.color+'">'+esc(d.label)+'</th>'; }).join('')
-      + '<th style="text-align:center">Δ'+hlp('delta')+'</th></tr></thead><tbody>';
-    names.forEach(function(nm){
-      var vals=DS.map(function(d){
-        var mm=matchMeta(d,meta.k); if(!mm) return null;
-        var g=CORE.groupBy(rowsOf(d),mm.col,mm.multi);
-        if(!g[nm] || g[nm].length<MINN) return null;
-        var o=CORE.overallIndex(g[nm],ratings(d));
-        return o? {v:o.index,n:g[nm].length} : null;
-      });
-      if(!vals.some(function(v){return v;})) return;
-      var first=null,last=null;
-      vals.forEach(function(v){ if(v){ if(first===null) first=v.v; last=v.v; } });
-      var d=(first!==null&&last!==null)? last-first : null;
-      h+='<tr><td class="stick">'+esc(lbl(nm))+'</td>'
-        + vals.map(function(v){ return v? '<td><span class="cell" style="background:'+idxColor(v.v)+'" title="n='+v.n+'">'+f0(v.v)+'</span></td>' : '<td><span class="cell na">–</span></td>'; }).join('')
-        + '<td class="num '+(d>1?'up':(d<-1?'down':'flat'))+'">'+(d!=null? (d>0?'+':'')+f1(d) : '–')+'</td></tr>';
-    });
-    h+='</tbody></table></div></div>';
-  });
-  return h;
-}
-
-/* ------------------------- events i views ------------------------- */
-function wireView(){
-  var sd=document.getElementById('segDim'); if(sd) sd.addEventListener('change',function(){ SEG_DIM=sd.value; render(); });
-  var sq=document.getElementById('segQ'); if(sq) sq.addEventListener('change',function(){ SEG_Q=sq.value; render(); });
-  var cq=document.getElementById('cq');
-  if(cq) cq.addEventListener('input',function(){ CQ=cq.value; var p=cq.selectionStart; render(); var n=document.getElementById('cq'); if(n){n.focus(); n.setSelectionRange(p,p);} });
-  var cf=document.getElementById('cfilt'); if(cf) cf.addEventListener('change',function(){ CFILT=cf.value; render(); });
-  document.querySelectorAll('.kw').forEach(function(k){ k.addEventListener('click',function(){ CQ=k.dataset.kw; render(); }); });
-}
-
-/* ------------------------- eksport ------------------------- */
-document.getElementById('btnCopy').addEventListener('click',function(){
-  if(!DS.length) return;
-  var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
-  var oi=CORE.overallIndex(rows,rs);
-  var items=rs.map(function(m){return {m:m,st:CORE.stat(rows,m.col,m.scale)};}).filter(function(x){return x.st;})
-              .sort(function(a,b){return b.st.index-a.st.index;});
-  var L=[];
-  L.push('YOUR OPINION MATTERS — '+ds.label);
-  L.push('Besvarelser: '+rows.length+(rows.length!==ds.rows.length?' (filtreret fra '+ds.rows.length+')':''));
-  L.push('Samlet tilfredshedsindeks: '+(oi?f1(oi.index):'–')+' / 100');
-  L.push('');
-  L.push('SCORE PR. SPØRGSMÅL');
-  items.forEach(function(x){ L.push('  '+f1(x.st.avg)+'/'+x.st.scale+'  '+x.m.short+'  (n='+x.st.n+', '+f0(x.st.low)+'% kritiske)'); });
-  var cc=countryCol(ds);
-  if(cc){
-    L.push(''); L.push('SAMLET INDEKS PR. NATIONALITET (min. '+MINN+' svar)');
-    var g=CORE.groupBy(rows,cc.col,cc.multi);
-    Object.keys(g).filter(function(k){return g[k].length>=MINN;})
-      .map(function(k){ var o=CORE.overallIndex(g[k],rs); return {k:k,v:o?o.index:null,n:g[k].length}; })
-      .filter(function(x){return x.v!=null;}).sort(function(a,b){return b.v-a.v;})
-      .forEach(function(x){ L.push('  '+f1(x.v)+'  '+ccName(x.k)+' (n='+x.n+')'); });
-  }
-  var ac=ageCol(ds);
-  if(ac){
-    L.push(''); L.push('SAMLET INDEKS PR. ALDERSGRUPPE');
-    var g2=CORE.groupBy(rows,ac.col,ac.multi);
-    Object.keys(g2).filter(function(k){return g2[k].length>=MINN;})
-      .map(function(k){ var o=CORE.overallIndex(g2[k],rs); return {k:k,v:o?o.index:null,n:g2[k].length}; })
-      .filter(function(x){return x.v!=null;}).sort(function(a,b){return b.v-a.v;})
-      .forEach(function(x){ L.push('  '+f1(x.v)+'  '+x.k+' (n='+x.n+')'); });
-  }
-  var txt=L.join('\n');
-  navigator.clipboard.writeText(txt).then(function(){ toast('Resumé kopieret'); },function(){
-    var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); toast('Resumé kopieret'); }catch(e){ toast('Kunne ikke kopiere'); }
-    document.body.removeChild(ta);
-  });
-});
-/* ---------------- Ordliste-overlay ---------------- */
-(function(){
-  var ovl=document.getElementById('glossary');
-  document.getElementById('glBody').innerHTML = Object.keys(HELP).map(function(k){
-    var d=HELP[k];
-    return '<div class="it"><b>'+esc(d.t)+'</b><p>'+esc(d.d)+'</p>'+(d.ex?'<div class="ex">'+esc(d.ex)+'</div>':'')+'</div>';
-  }).join('');
-  document.getElementById('btnHelp').addEventListener('click',function(){ ovl.classList.add('on'); });
-  document.getElementById('glClose').addEventListener('click',function(){ ovl.classList.remove('on'); });
-  ovl.addEventListener('click',function(e){ if(e.target===ovl) ovl.classList.remove('on'); });
-})();
-
-document.getElementById('btnCsv').addEventListener('click',function(){
-  if(!DS.length) return;
-  var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
-  var cc=countryCol(ds), ac=ageCol(ds);
-  var lines=[['Datasæt','Opdeling','Gruppe','Spørgsmål','Gennemsnit','Skala','Indeks','Antal svar','% kritiske (1-2)','% topkarakter'].join(';')];
-  function push(dimName,grp,rws){
-    rs.forEach(function(m){
-      var st=CORE.stat(rws,m.col,m.scale); if(!st) return;
-      lines.push([ds.label,dimName,grp,m.short,f1(st.avg),st.scale,f1(st.index),st.n,f0(st.low),f0(st.top)]
-        .map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(';'));
-    });
-  }
-  push('Alle','Alle',rows);
-  [[cc,'Nationalitet'],[ac,'Aldersgruppe']].forEach(function(p){
-    if(!p[0]) return;
-    var g=CORE.groupBy(rows,p[0].col,p[0].multi);
-    Object.keys(g).forEach(function(k){ if(g[k].length>=MINN) push(p[1], (/country/i.test(p[0].col)?ccName(k):k), g[k]); });
-  });
-  var blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='opinion-matters-'+ds.label.replace(/[^\w-]+/g,'-').toLowerCase()+'.csv';
-  a.click(); URL.revokeObjectURL(a.href);
-  toast('CSV downloadet');
-});
+applyStatic();
 </script>
 </body>
 </html>
