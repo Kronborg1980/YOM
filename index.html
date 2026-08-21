@@ -120,7 +120,7 @@ nav.tabs button.on{color:var(--brass); border-bottom-color:var(--brass); backgro
 .up{color:var(--good)} .down{color:var(--bad)} .flat{color:var(--mut)}
 
 /* ---------- bars ---------- */
-.qrow{display:grid; grid-template-columns:1fr 250px 78px; gap:14px; align-items:center; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.05)}
+.qrow{display:grid; grid-template-columns:1fr 240px 86px; gap:14px; align-items:center; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.05)}
 .qrow:last-child{border-bottom:none}
 .qname{font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .qname .n{color:var(--dim); font-weight:500; font-size:11.5px; margin-left:6px}
@@ -195,6 +195,55 @@ tbody tr:hover td.stick{background:#17293a}
 .langsw button.on{background:var(--brass);color:#1b1305}
 .langsw button:hover{color:var(--ink)}
 .langsw button.on:hover{color:#1b1305}
+/* charts */
+.gauge{width:100%;max-width:300px;height:auto;display:block;margin:6px auto 2px}
+.gauge .g-val{font:800 40px 'IBM Plex Mono',monospace;letter-spacing:-1px}
+.gauge .g-cap{font:700 10.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:1.8px;text-transform:uppercase;fill:var(--dim)}
+.gauge .g-tick{font:600 11px 'IBM Plex Mono',monospace;fill:var(--dim)}
+.donut{width:100%;max-width:160px;height:auto;display:block}
+.donut .d-val{font:800 26px 'IBM Plex Mono',monospace}
+.donut .d-cap{font:600 10px 'Plus Jakarta Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;fill:var(--dim)}
+.ring{display:block;flex:none}
+.ring .r-val{font:800 22px 'IBM Plex Mono',monospace}
+.ring .r-cap{font:600 8.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:1.1px;text-transform:uppercase;fill:var(--dim)}
+.spark{width:100%;height:auto;display:block;margin-top:6px}
+.spark .s-tick{font:600 10.5px 'IBM Plex Mono',monospace;fill:var(--dim)}
+.cwrap{display:flex;justify-content:center;padding:4px 0 12px}
+.hero{display:grid;grid-template-columns:1.45fr 1fr 1fr 1fr;gap:14px;align-items:stretch}
+@media(max-width:1200px){.hero{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.hero{grid-template-columns:1fr}}
+.hero-main{display:flex;flex-direction:column}
+.hero-facts{display:flex;gap:16px;flex-wrap:wrap;margin-top:auto;padding-top:14px;border-top:1px solid var(--line2)}
+.hero-facts div{display:flex;flex-direction:column}
+.hero-facts b{font:800 20px 'IBM Plex Mono',monospace;line-height:1.2}
+.hero-facts span{font-size:11px;color:var(--dim);letter-spacing:.4px}
+.dleg{display:flex;flex-direction:column;gap:5px;margin-top:2px}
+.dleg div{display:flex;align-items:center;gap:7px;font-size:12px}
+.dleg i{width:9px;height:9px;border-radius:3px;flex:none}
+.dleg span{color:var(--mut);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dleg b{font-family:'IBM Plex Mono',monospace;font-size:12px}
+.dleg em{font-style:normal;color:var(--dim);font-size:11px;width:38px;text-align:right;font-family:'IBM Plex Mono',monospace}
+.minirows{display:flex;flex-direction:column;gap:5px;margin-top:2px}
+.mrow{display:flex;align-items:center;gap:8px;font-size:12px}
+.mrow span{color:var(--mut);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow b{font-family:'IBM Plex Mono',monospace}
+.rcard{display:flex;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.rcard:last-child{border-bottom:none;padding-bottom:0}
+.rmeta{display:flex;flex-direction:column;gap:3px;min-width:0}
+.rmeta b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rmeta span{font-size:11.5px;color:var(--mut)}
+.rmeta .good{color:var(--good);font-weight:600}
+.rmeta .bad{color:var(--bad);font-weight:600}
+.mkgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.mk{display:flex;gap:11px;align-items:center;background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:12px;padding:10px}
+.mkm{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mkm b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mkm span{font-size:11px;color:var(--dim);font-family:'IBM Plex Mono',monospace}
+.score2{text-align:right;line-height:1.15}
+.score2 b{font:700 17px 'IBM Plex Mono',monospace;display:block}
+.score2 i{font-style:normal;font-size:10.5px;color:var(--dim);font-family:'IBM Plex Mono',monospace}
+.warnbar{background:rgba(226,139,75,.10);border:1px solid rgba(226,139,75,.35);color:#f0ab73;
+  border-radius:12px;padding:11px 14px;font-size:12.8px;line-height:1.5;margin-bottom:16px}
 .empty{color:var(--dim); text-align:center; padding:40px; font-size:14px}
 .badge{font-size:10.5px; letter-spacing:1px; text-transform:uppercase; font-weight:700; padding:3px 8px; border-radius:6px}
 .b-bad{background:rgba(224,91,75,.16); color:#f19183}
@@ -212,6 +261,16 @@ details.fields summary{cursor:pointer; color:var(--mut); font-size:12.5px}
   padding:6px 9px; border-radius:8px}
 .fieldgrid input{accent-color:var(--brass)}
 
+@media(max-width:760px){
+  .wrap{padding:14px 12px 70px}
+  .qrow{grid-template-columns:1fr 96px !important; gap:8px}
+  .qrow>div:nth-child(2){grid-column:1/-1; order:3}
+  .g2,.g3{grid-template-columns:1fr}
+  .top-actions{width:100%; margin-left:0}
+  .filters select,.filters input{max-width:100%; flex:1 1 140px}
+  .rcard{gap:10px}
+  h1{font-size:17px}
+}
 @media print{
   body{background:#fff; color:#111}
   body::before{display:none}
@@ -222,7 +281,10 @@ details.fields summary{cursor:pointer; color:var(--mut); font-size:12.5px}
   .cell{color:#111}
   td.stick,th.stick,thead th{background:#f2f5f7 !important; color:#334}
   .tblwrap{max-height:none}
-  .qname,.score,.kpi .val{color:#111}
+  .qname,.score,.kpi .val,.score2 b{color:#111}
+  .hero{grid-template-columns:1fr 1fr}
+  .rcard,.mk{border-color:#ccd}
+  .warnbar{color:#7a4a12;background:#fdf3e6}
 }
 </style>
 </head>
@@ -369,12 +431,15 @@ var CORE = (function(){
       var minV=Infinity,maxV=-Infinity;
       if(numeric){ vals.forEach(function(v){ var n=num(v); if(n<minV)minV=n; if(n>maxV)maxV=n; }); }
       var looksQ = /\?|^\s*\d+(\.\d+)?[a-zA-Z]?[.\s)]/.test(c) || /\brate\b|\bhow\b|overall|satisfaction|score/i.test(c);
-      var scaleHint = (c.match(/scale of \d+ to (\d+)/i)||[])[1];
+      var scaleHint = (c.match(/scale of \d+\s*(?:to|-|\u2013)\s*(\d+)/i)
+                    || c.match(/\(\s*\d+\s*(?:to|-|\u2013)\s*(\d+)\s*\)/i)
+                    || c.match(/\b1\s*(?:-|\u2013|to)\s*(4|5|7|10)\b/i) || [])[1];
 
       if(numeric && minV>=1 && maxV<=10 && uniqN<=10){
         m.scale = scaleHint? parseInt(scaleHint,10) : (maxV<=4?4:(maxV<=5?5:(maxV<=7?7:10)));
         if(m.scale<maxV) m.scale=maxV;
         m.autoScale = m.scale;
+        m.scaleSure = !!scaleHint;   // står skalaen i spørgsmålsteksten? / is the scale stated in the question?
         m.candidate = true;
       }
       if(m.candidate && !NUM_BLACK.test(c) && !IGNORE_RX.test(c) && looksQ){
@@ -545,6 +610,32 @@ var STR = {
  sTop:{da:'% topkarakter',en:'% top marks'},
  sName:{da:'Navn A–Å',en:'Name A–Z'},
  scaleCol:{da:'Skala',en:'Scale'},
+ heroTitle:{da:'Sådan står det til',en:'How we are doing'},
+ heroSub:{da:'Alle vurderingsspørgsmål lagt sammen på den samme målestok',en:'Every rating question combined on one common yardstick'},
+ kIndexN2:{da:'tilfredshedsindeks',en:'satisfaction index'},
+ heroQ:{da:'spørgsmål målt',en:'questions measured'},
+ sentiment:{da:'Gæstestemning',en:'Guest sentiment'},
+ sentimentS:{da:'Hver gæst placeret efter sit eget samlede indeks',en:'Each guest placed by their own overall index'},
+ satisfiedShort:{da:'tilfredse',en:'satisfied'},
+ advocacy:{da:'Anbefaling',en:'Advocacy'},
+ npsProShort:{da:'ambassadører',en:'advocates'},
+ kCrit:{da:'Kritiske svar',en:'Critical answers'},
+ kCritS:{da:'Andel af alle afgivne karakterer der var 1 eller 2',en:'Share of all marks given that were 1 or 2'},
+ doWell:{da:'Det gør vi godt',en:'What we do well'},
+ doWellS:{da:'De tre spørgsmål med højest indeks — pas på dem',en:'The three questions with the highest index — protect these'},
+ lift:{da:'Her skal vi løfte',en:'Where we must lift'},
+ liftS:{da:'De tre spørgsmål med lavest indeks — start her',en:'The three questions with the lowest index — start here'},
+ indexWord:{da:'indeks',en:'index'},
+ ofScale:{da:'af {n}',en:'of {n}'},
+ critShare:{da:'{n}% gav 1 eller 2',en:'{n}% gave 1 or 2'},
+ topShare:{da:'{n}% gav topkarakter',en:'{n}% gave top marks'},
+ topMarkets:{da:'Største markeder',en:'Biggest markets'},
+ topMarketsS:{da:'Nationaliteter med mindst {n} besvarelser{h}, rangeret efter samlet indeks. Tallet til højre er afvigelsen fra totalen.',en:'Nationalities with at least {n} responses{h}, ranked by overall index. The figure on the right is the gap from the total.'},
+ trend:{da:'Udvikling pr. afgangsmåned',en:'Trend by departure month'},
+ trendS:{da:'Samlet indeks måned for måned · kun måneder med mindst {n} besvarelser',en:'Overall index month by month · only months with at least {n} responses'},
+ scaleWarn:{da:'Skalaen er gættet ud fra svarene for: {x}. Ingen gæst har brugt et højere trin — er spørgsmålet i virkeligheden 1–5, så ret det under «Vurderingsspørgsmål & skalaer» i filterbjælken.',en:'The scale was guessed from the answers for: {x}. No guest used a higher step — if the question really is 1–5, correct it under «Rating questions & scales» in the filter bar.'},
+ noRowsFilter:{da:'Ingen besvarelser matcher dine filtre. Nulstil dem i filterbjælken.',en:'No responses match your filters. Clear them in the filter bar.'},
+ guessed:{da:'gættet skala',en:'guessed scale'},
  dist:{da:'Svarfordeling',en:'Answer distribution'},
  distS:{da:'Hvor mange gav 1, 2, 3 … pr. spørgsmål',en:'How many gave 1, 2, 3 … per question'},
  distNote:{da:'Bemærk: nogle spørgsmål bruger en 1–4-skala — se skalaen ud for hvert spørgsmål.',en:'Note: some questions use a 1–4 scale — the scale is shown next to each question.'},
@@ -644,7 +735,7 @@ var STR = {
  errView:{da:'Noget gik galt i denne visning: {e}',en:'Something went wrong in this view: {e}'},
  fieldsHint:{da:'Skalaen gættes ud fra svarene. Er et spørgsmål fx 1–5, men ingen gav 5, så ret skalaen her — indekset regnes om automatisk.',en:'The scale is guessed from the answers. If a question is 1–5 but nobody gave a 5, correct it here — the index recalculates automatically.'},
  /* afledte segmenter / derived segments */
- dimParty:{da:'Rejseselskab (antal personer)',en:'Party size'},
+ dimParty:{da:'Rejseselskab',en:'Party size'},
  pSolo:{da:'Alene',en:'Solo traveller'},
  pCouple:{da:'Par (2)',en:'Couple (2)'},
  pFamily:{da:'Familie/lille gruppe (3–4)',en:'Family/small group (3–4)'},
@@ -1017,10 +1108,11 @@ function renderChrome(){
   document.getElementById('glH').textContent=T('glossaryH');
   document.getElementById('glP').textContent=T('glossaryP');
   document.getElementById('glClose').textContent=T('close');
-  document.getElementById('glBody').innerHTML = Object.keys(HELP).map(function(k){
+  var gb=document.getElementById('glBody');
+  if(gb._l!==LANG){ gb._l=LANG; gb.innerHTML = Object.keys(HELP).map(function(k){
     var d=hd(k);
     return '<div class="it"><b>'+esc(d.t)+'</b><p>'+esc(d.d)+'</p>'+(d.ex?'<div class="ex">'+esc(d.ex)+'</div>':'')+'</div>';
-  }).join('');
+  }).join(''); }
   document.querySelectorAll('#langsw button').forEach(function(b){
     b.classList.toggle('on', b.dataset.l===LANG);
   });
@@ -1074,7 +1166,8 @@ function renderFilters(){
     Object.keys(g).forEach(function(k){ counts[k]=g[k].length; });
     var opts=ordered(m,Object.keys(g),counts);
     var lbl=valLabel(m);
-    h+='<select data-f="'+esc(m.k)+'"><option value="">'+esc(dimName(m).slice(0,26))+': '+T('all')+'</option>'
+    var dn=dimName(m); if(dn.length>24) dn=dn.slice(0,23).replace(/[\s(,–-]+$/,'')+'…';
+    h+='<select data-f="'+esc(m.k)+'" title="'+esc(m.label)+'"><option value="">'+esc(dn)+': '+T('all')+'</option>'
       + opts.map(function(o){ return '<option value="'+esc(o)+'"'+(FILTERS[m.k]===o?' selected':'')+'>'+esc(lbl(o))+' ('+g[o].length+')</option>'; }).join('')
       + '</select>';
   });
@@ -1092,7 +1185,8 @@ function renderFilters(){
         var on = (m.type==='rating' && !HIDDEN[m.k]) || FORCE[m.k];
         var opts=[4,5,7,10].map(function(v){ return '<option value="'+v+'"'+(m.scale===v?' selected':'')+'>1–'+v+'</option>'; }).join('');
         return '<label><input type="checkbox" data-fld="'+esc(m.k)+'" data-t="'+m.type+'"'+(on?' checked':'')+'> '
-          + '<span style="flex:1;overflow:hidden;text-overflow:ellipsis" title="'+esc(m.label)+'">'+esc(m.short)+'</span>'
+          + '<span style="flex:1;overflow:hidden;text-overflow:ellipsis" title="'+esc(m.label)+'">'+esc(m.short)
+          + (m.scaleSure?'':' <span title="'+T('guessed')+'" style="color:var(--warn)">⚠</span>')+'</span>'
           + '<span style="color:var(--dim)">n='+m.n+'</span>'
           + '<select data-sc="'+esc(m.k)+'" style="padding:2px 5px;font-size:11.5px">'+opts+'</select></label>';
       }).join('')
@@ -1180,7 +1274,7 @@ function qList(rows, rs, opts){
     h+='<div class="qrow"><div class="qname" title="'+esc(it.m.label)+'">'+esc(it.m.short)
       +'<span class="n">n='+it.st.n+' · 1–'+it.st.scale+'</span></div>'
       +'<div>'+(opts.dist? distBar(it.st) : bar(it.st.index, idxColor(it.st.index)))+'</div>'
-      +'<div class="score" style="color:'+idxColor(it.st.index)+'">'+f1(it.st.avg)+'<span style="color:var(--dim);font-size:10.5px">/'+it.st.scale+'</span></div></div>';
+      + scoreCell(it.st)+'</div>';
   });
   return h;
 }
@@ -1189,40 +1283,228 @@ function kpi(cap,val,note,color,hk){
     +(note?'<div class="note">'+note+'</div>':'')+'</div>';
 }
 
+/* ---------------- SVG-grafik / SVG charts ---------------- */
+function gaugeSVG(idx, opts){
+  opts=opts||{};
+  var w=280,h=172,cx=140,cy=142,r=104,sw=20;
+  var C=Math.PI*r;
+  var v=(idx==null)?0:Math.max(0,Math.min(100,idx));
+  var len=v/100*C;
+  var d='M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+cy;
+  var col=idxColor(idx);
+  var h2='<svg viewBox="0 0 '+w+' '+h+'" class="gauge" role="img">';
+  h2+='<defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="0">'
+    +'<stop offset="0%" stop-color="'+col+'88"/><stop offset="100%" stop-color="'+col+'"/></linearGradient></defs>';
+  h2+='<path d="'+d+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="'+sw+'" stroke-linecap="round"/>';
+  h2+='<path d="'+d+'" fill="none" stroke="url(#gg)" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+len+' '+(C-len+2)+'"/>';
+  if(opts.mark!=null){
+    var a=Math.PI*(1-Math.max(0,Math.min(100,opts.mark))/100);
+    var x1=cx+Math.cos(a)*(r-sw/2-3), y1=cy-Math.sin(a)*(r-sw/2-3);
+    var x2=cx+Math.cos(a)*(r+sw/2+3), y2=cy-Math.sin(a)*(r+sw/2+3);
+    h2+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#E8EEF4" stroke-width="2.5" stroke-linecap="round" opacity=".75"><title>'+esc(opts.markLabel||'')+'</title></line>';
+  }
+  h2+='<text x="'+cx+'" y="'+(cy-30)+'" text-anchor="middle" class="g-val" fill="'+col+'">'+(idx==null?'–':f1(idx))+'</text>';
+  h2+='<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" class="g-cap">'+esc(opts.cap||'')+'</text>';
+  h2+='<text x="'+(cx-r)+'" y="'+(cy+22)+'" text-anchor="middle" class="g-tick">0</text>';
+  h2+='<text x="'+(cx+r)+'" y="'+(cy+22)+'" text-anchor="middle" class="g-tick">100</text>';
+  return h2+'</svg>';
+}
+function donutSVG(segs, opts){
+  opts=opts||{};
+  var size=opts.size||152, sw=opts.sw||20, r=(size-sw)/2-3, cx=size/2, cy=size/2;
+  var C=2*Math.PI*r, tot=0;
+  segs.forEach(function(s){ tot+=s.v; });
+  var h='<svg viewBox="0 0 '+size+' '+size+'" class="donut" role="img">';
+  h+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="'+sw+'"/>';
+  if(tot){
+    var off=0;
+    segs.forEach(function(s){
+      if(!s.v) return;
+      var len=s.v/tot*C;
+      h+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+s.color+'" stroke-width="'+sw+'"'
+        +' stroke-dasharray="'+len+' '+(C-len)+'" stroke-dashoffset="'+(-off)+'"'
+        +' transform="rotate(-90 '+cx+' '+cy+')"><title>'+esc(s.label)+': '+s.v+' ('+f0(s.v/tot*100)+'%)</title></circle>';
+      off+=len;
+    });
+  }
+  if(opts.center!=null) h+='<text x="'+cx+'" y="'+(cy+(opts.sub?0:7))+'" text-anchor="middle" class="d-val" fill="'+(opts.centerColor||'var(--ink)')+'">'+opts.center+'</text>';
+  if(opts.sub) h+='<text x="'+cx+'" y="'+(cy+20)+'" text-anchor="middle" class="d-cap">'+esc(opts.sub)+'</text>';
+  return h+'</svg>';
+}
+function ringSVG(pct, col, center, sub, size){
+  size=size||104;
+  var sw=11, r=(size-sw)/2-2, cx=size/2, cy=size/2, C=2*Math.PI*r;
+  var len=Math.max(0,Math.min(100,pct||0))/100*C;
+  var h='<svg viewBox="0 0 '+size+' '+size+'" class="ring" role="img">';
+  h+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="'+sw+'"/>';
+  h+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round"'
+    +' stroke-dasharray="'+len+' '+(C-len)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+  h+='<text x="'+cx+'" y="'+(cy+(sub?1:6))+'" text-anchor="middle" class="r-val" fill="'+col+'">'+center+'</text>';
+  if(sub) h+='<text x="'+cx+'" y="'+(cy+17)+'" text-anchor="middle" class="r-cap">'+esc(sub)+'</text>';
+  return h+'</svg>';
+}
+function sparkSVG(pts, opts){
+  opts=opts||{};
+  var w=opts.w||640, h=opts.h||150, pl=34, pr=12, pt=16, pb=26;
+  if(pts.length<2) return '';
+  var vs=pts.map(function(p){return p.v;});
+  var lo=Math.min.apply(null,vs), hi=Math.max.apply(null,vs);
+  lo=Math.max(0,Math.floor((lo-6)/5)*5); hi=Math.min(100,Math.ceil((hi+6)/5)*5);
+  if(hi-lo<10) hi=lo+10;
+  var iw=w-pl-pr, ih=h-pt-pb;
+  function X(i){ return pl + (pts.length===1?iw/2:i/(pts.length-1)*iw); }
+  function Y(v){ return pt + (1-(v-lo)/(hi-lo))*ih; }
+  var s='<svg viewBox="0 0 '+w+' '+h+'" class="spark" preserveAspectRatio="none" role="img">';
+  [0,.5,1].forEach(function(f){
+    var y=pt+f*ih, val=hi-(hi-lo)*f;
+    s+='<line x1="'+pl+'" y1="'+y+'" x2="'+(w-pr)+'" y2="'+y+'" stroke="rgba(255,255,255,.07)" stroke-width="1"/>';
+    s+='<text x="'+(pl-7)+'" y="'+(y+4)+'" text-anchor="end" class="s-tick">'+f0(val)+'</text>';
+  });
+  var line=pts.map(function(p,i){ return (i?'L':'M')+X(i)+' '+Y(p.v); }).join(' ');
+  s+='<path d="'+line+' L '+X(pts.length-1)+' '+(pt+ih)+' L '+X(0)+' '+(pt+ih)+' Z" fill="rgba(226,166,75,.12)"/>';
+  s+='<path d="'+line+'" fill="none" stroke="var(--brass)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+  pts.forEach(function(p,i){
+    s+='<circle cx="'+X(i)+'" cy="'+Y(p.v)+'" r="4.5" fill="'+idxColor(p.v)+'" stroke="#0B1723" stroke-width="2"><title>'+esc(p.k)+': '+f1(p.v)+' (n='+p.n+')</title></circle>';
+    s+='<text x="'+X(i)+'" y="'+(h-8)+'" text-anchor="middle" class="s-tick">'+esc(p.k)+'</text>';
+  });
+  return s+'</svg>';
+}
+function scoreCell(st){
+  return '<div class="score2"><b style="color:'+idxColor(st.index)+'">'+f0(st.index)+'</b>'
+    +'<i>'+f1(st.avg)+' / '+st.scale+'</i></div>';
+}
+
 /* ---------------- 1. Overblik / Overview ---------------- */
+function guessedScales(ds){
+  return ratings(ds).filter(function(m){ return !m.scaleSure && m.scale<5; });
+}
 function viewOverview(){
   var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
   if(!rs.length) return '<div class="empty">'+T('noRating')+'</div>';
+  if(!rows.length) return '<div class="empty">'+T('noRowsFilter')+'</div>';
+
   var oi=CORE.overallIndex(rows,rs);
   var items=rs.map(function(m){ return {m:m, st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;});
   items.sort(function(a,b){ return b.st.index-a.st.index; });
-  var best=items[0], worst=items[items.length-1];
   var rec=null; rs.forEach(function(m){ if(/recommend/i.test(m.col)) rec=m; });
   var recSt = rec? CORE.stat(rows,rec.col,rec.scale) : null;
-  var critical = rows.filter(function(r){ var v=CORE.respondentIndex(r,rs,3); return v!=null && v<50; }).length;
+
+  /* gæstestemning / sentiment */
+  var sat={hi:0,mid:0,lo:0,bad:0}, scored=0;
+  rows.forEach(function(r){
+    var v=CORE.respondentIndex(r,rs,3); if(v==null) return;
+    scored++;
+    if(v>=80) sat.hi++; else if(v>=60) sat.mid++; else if(v>=45) sat.lo++; else sat.bad++;
+  });
+  var unhappy=sat.lo+sat.bad;
+
+  /* kritiske svar samlet / overall critical share */
+  var critN=0, critTot=0;
+  rs.forEach(function(m){ var st=CORE.stat(rows,m.col,m.scale); if(st){ critN+=st.low/100*st.n; critTot+=st.n; } });
+  var critPct = critTot? critN/critTot*100 : 0;
+
+  /* sammenligningsmærke fra andet datasæt / baseline mark */
+  var mark=null, markLbl='';
+  if(DS.length>1){
+    var other=DS[ACTIVE===0?1:0], oo=CORE.overallIndex(rowsOf(other),ratings(other));
+    if(oo){ mark=oo.index; markLbl=other.label+': '+f1(oo.index); }
+  }
 
   var h=intro(T('introOver'),'samlet');
-  h+='<div class="grid g4">';
-  h+=kpi(T('kResp'), rows.length, (rows.length!==ds.rows.length? T('kRespOf',{n:ds.rows.length}) : T('kRespN')), null, 'besvarelser');
-  h+=kpi(T('kIndex'), oi? f1(oi.index) : '–', T('kIndexN'), idxColor(oi?oi.index:null), 'samlet');
-  h+=kpi(T('kHigh'), best? f1(best.st.avg)+' <span style="font-size:15px;color:var(--dim)">/'+best.st.scale+'</span>':'–', best? esc(best.m.short):'', 'var(--good)', 'hoejeste');
-  h+=kpi(T('kLow'), worst? f1(worst.st.avg)+' <span style="font-size:15px;color:var(--dim)">/'+worst.st.scale+'</span>':'–', worst? esc(worst.m.short):'', 'var(--bad)', 'laveste');
-  if(recSt) h+=kpi(T('kRec'), f1(recSt.avg)+' <span style="font-size:15px;color:var(--dim)">/'+recSt.scale+'</span>', T('kRecN',{n:f0(recSt.top)}), idxColor(recSt.index), 'anbefale');
-  h+=kpi(T('kUnhappy'), f0(critical/Math.max(1,rows.length)*100)+'%', T('kUnhappyN',{n:critical}), critical? 'var(--warn)':'var(--good)', 'utilfredse');
+
+  /* --- advarsel om gættet skala --- */
+  var gs=guessedScales(ds);
+  if(gs.length) h+='<div class="warnbar">⚠ '+T('scaleWarn',{n:gs.length,x:esc(gs.map(function(m){return m.short+' (1–'+m.scale+')';}).join(', '))})+hlp('skala')+'</div>';
+
+  /* --- hero --- */
+  h+='<div class="hero">';
+  h+='<div class="card accent hero-main"><h3>'+T('heroTitle')+hlp('samlet')+'</h3>'
+    +'<p class="sub">'+T('heroSub')+'</p>'
+    + gaugeSVG(oi? oi.index:null,{cap:T('kIndexN2'),mark:mark,markLabel:markLbl})
+    +'<div class="hero-facts">'
+      +'<div><b>'+rows.length+'</b><span>'+T('kResp')+(rows.length!==ds.rows.length? ' ('+T('kRespOf',{n:ds.rows.length})+')':'')+'</span></div>'
+      +'<div><b>'+items.length+'</b><span>'+T('heroQ')+'</span></div>'
+      +(mark!=null? '<div><b class="delta '+(oi.index-mark>0.5?'up':(oi.index-mark<-0.5?'down':'flat'))+'">'+(oi.index-mark>0?'+':'')+f1(oi.index-mark)+'</b><span>'+T('vsBase',{d:'',x:esc(DS[ACTIVE===0?1:0].label)}).trim()+'</span></div>' : '')
+    +'</div></div>';
+
+  h+='<div class="card"><h3>'+T('sentiment')+hlp('utilfredse')+'</h3><p class="sub">'+T('sentimentS')+'</p>'
+    + '<div class="cwrap">'
+    + donutSVG([{v:sat.hi,color:'#46B08A',label:T('satHigh')},{v:sat.mid,color:'#7FBF6A',label:T('satMid')},
+                {v:sat.lo,color:'#E28B4B',label:T('satLow')},{v:sat.bad,color:'#E05B4B',label:T('satBad')}],
+               {center:scored? f0((sat.hi+sat.mid)/scored*100)+'%':'–', sub:T('satisfiedShort'), centerColor:'#7FBF6A'})
+    + '</div>'
+    + legendList([{c:'#46B08A',l:T('satHigh'),v:sat.hi},{c:'#7FBF6A',l:T('satMid'),v:sat.mid},
+                  {c:'#E28B4B',l:T('satLow'),v:sat.lo},{c:'#E05B4B',l:T('satBad'),v:sat.bad}],scored)
+    + '</div>';
+
+  if(recSt){
+    var pro=0,pas=0,cri=0;
+    rows.forEach(function(r){
+      var v=CORE.num(r[rec.col]); if(v===null) return;
+      if(v>=rec.scale) pro++; else if(v<=2) cri++; else pas++;
+    });
+    h+='<div class="card"><h3>'+T('advocacy')+hlp('anbefale')+'</h3><p class="sub">'+esc(rec.short)+' · 1–'+rec.scale+'</p>'
+      +'<div class="cwrap">'
+      + donutSVG([{v:pro,color:'#46B08A',label:T('npsPro')},{v:pas,color:'#C9BB58',label:T('npsPas')},{v:cri,color:'#E05B4B',label:T('npsCri')}],
+                 {center:f0(recSt.top)+'%', sub:T('npsProShort'), centerColor:'#46B08A'})
+      +'</div>'
+      + legendList([{c:'#46B08A',l:T('npsPro'),v:pro},{c:'#C9BB58',l:T('npsPas'),v:pas},{c:'#E05B4B',l:T('npsCri'),v:cri}],recSt.n)
+      +'</div>';
+  }
+
+  h+='<div class="card"><h3>'+T('kCrit')+hlp('kritiske')+'</h3><p class="sub">'+T('kCritS')+'</p>'
+    +'<div class="cwrap">'+ringSVG(critPct, idxColor(100-critPct*3), f0(critPct)+'%', '', 132)+'</div>'
+    +'<div class="minirows">'
+    + items.slice().sort(function(a,b){return b.st.low-a.st.low;}).slice(0,3).map(function(x){
+        return '<div class="mrow"><span title="'+esc(x.m.label)+'">'+esc(x.m.short)+'</span><b style="color:'+idxColor(100-x.st.low*3)+'">'+f0(x.st.low)+'%</b></div>';
+      }).join('')
+    +'</div></div>';
   h+='</div>';
 
+  /* --- gør vi godt / skal løftes --- */
+  function ringCards(list,accent){
+    return list.map(function(x){
+      return '<div class="rcard"><div>'+ringSVG(x.st.index, idxColor(x.st.index), f0(x.st.index), T('indexWord'))+'</div>'
+        +'<div class="rmeta"><b title="'+esc(x.m.label)+'">'+esc(x.m.short)+'</b>'
+        +'<span class="mono">'+f1(x.st.avg)+' '+T('ofScale',{n:x.st.scale})+' · n='+x.st.n+'</span>'
+        +'<span class="'+(accent==='good'?'good':'bad')+'">'+(accent==='good'? T('topShare',{n:f0(x.st.top)}) : T('critShare',{n:f0(x.st.low)}))+'</span>'
+        +'</div></div>';
+    }).join('');
+  }
+  h+='<div class="grid g2" style="margin-top:20px">';
+  h+='<div class="card"><h3 style="color:var(--good)">✓ '+T('doWell')+hlp('hoejeste')+'</h3><p class="sub">'+T('doWellS')+'</p>'
+    + ringCards(items.slice(0,3),'good')+'</div>';
+  h+='<div class="card"><h3 style="color:var(--bad)">▲ '+T('lift')+hlp('laveste')+'</h3><p class="sub">'+T('liftS')+'</p>'
+    + ringCards(items.slice(-3).reverse(),'bad')+'</div>';
+  h+='</div>';
+
+  /* --- alle datasæt --- */
   if(DS.length>1){
     h+='<div class="sect-title">'+T('allDs')+hlp('datasaet')+'</div><div class="card"><div class="mbars">';
     DS.forEach(function(d){
       var r2=rowsOf(d), o2=CORE.overallIndex(r2,ratings(d));
-      h+='<div class="mbar" style="padding:5px 0"><div class="lb" style="width:150px;color:var(--ink);font-weight:600">'+esc(d.label)+'</div>'
+      h+='<div class="mbar" style="padding:5px 0"><div class="lb" style="width:160px;color:var(--ink);font-weight:600">'+esc(d.label)+'</div>'
         +'<div class="track" style="height:12px">'+(o2?'<div class="fill" style="width:'+o2.index+'%;background:linear-gradient(90deg,'+d.color+'88,'+d.color+')"></div>':'')+'</div>'
         +'<div class="sc" style="width:52px;font-size:13px">'+(o2?f1(o2.index):'–')+'</div>'
-        +'<div class="lb" style="width:78px;text-align:right">'+r2.length+' '+T('answers')+'</div></div>';
+        +'<div class="lb" style="width:86px;text-align:right">'+r2.length+' '+T('answers')+'</div></div>';
     });
     h+='</div></div>';
   }
 
+  /* --- udvikling pr. måned --- */
+  var mm=matchMeta(ds,'__month');
+  if(mm){
+    var gm=CORE.groupBy(rows,mm.col,false);
+    var pts=(mm.order||Object.keys(gm)).filter(function(k){ return gm[k] && gm[k].length>=Math.max(3,MINN); })
+      .map(function(k){ var o=CORE.overallIndex(gm[k],rs); return o? {k:k,v:o.index,n:gm[k].length} : null; })
+      .filter(Boolean);
+    if(pts.length>=2){
+      h+='<div class="sect-title">'+T('trend')+hlp('samlet')+'</div><div class="card"><p class="sub">'+T('trendS',{n:Math.max(3,MINN)})+'</p>'
+        + sparkSVG(pts)+'</div>';
+    }
+  }
+
+  /* --- alle spørgsmål --- */
   var maxSc=Math.max.apply(null,rs.map(function(m){return m.scale;}));
   h+='<div class="sect-title">'+T('allQ')+'</div><div class="grid g2">';
   h+='<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">'+T('avgPerQ')+hlp('gns')+'</h3>'+sortSelect('qsort')+'</div>'
@@ -1231,15 +1513,32 @@ function viewOverview(){
     +(rs.some(function(m){return m.scale!==maxSc;})? '<p class="sub" style="margin-top:6px">'+T('distNote')+'</p>':'')+'</div>';
   h+='</div>';
 
-  h+='<div class="sect-title">'+T('quick')+'</div><div class="grid g3">';
-  h+='<div class="card"><h3 style="color:var(--good)">'+T('strong')+hlp('hoejeste')+'</h3><p class="sub">'+T('strongS')+'</p>'+qList(rows,rs,{limit:3,fixed:true})+'</div>';
-  var low=items.slice(-3).reverse().map(function(x){return x.m;});
-  h+='<div class="card"><h3 style="color:var(--bad)">'+T('weak')+hlp('laveste')+'</h3><p class="sub">'+T('weakS')+'</p>'+qList(rows,low,{asc:true,fixed:true})+'</div>';
-  var crit=items.slice().sort(function(a,b){return b.st.low-a.st.low;}).slice(0,3);
-  h+='<div class="card"><h3 style="color:var(--warn)">'+T('mostCrit')+hlp('kritiske')+'</h3><p class="sub">'+T('mostCritS')+'</p>'
-    + crit.map(function(x){ return '<div class="qrow"><div class="qname">'+esc(x.m.short)+'</div><div>'+bar(x.st.low,'#E05B4B')+'</div><div class="score">'+f0(x.st.low)+'%</div></div>'; }).join('')
-    + '</div></div>';
+  /* --- største markeder --- */
+  var cc=countryCol(ds);
+  if(cc){
+    var gc=CORE.groupBy(rows,cc.col,cc.multi), counts={};
+    Object.keys(gc).forEach(function(k){ counts[k]=gc[k].length; });
+    var top=Object.keys(gc).filter(function(k){ return gc[k].length>=MINN; })
+              .sort(function(a,b){return gc[b].length-gc[a].length;}).slice(0,8)
+              .map(function(k){ var o=CORE.overallIndex(gc[k],rs); return {k:k,o:o,n:gc[k].length}; })
+              .filter(function(x){return x.o;});
+    if(top.length){
+      h+='<div class="sect-title">'+T('topMarkets')+hlp('rangering')+'</div><div class="card"><p class="sub">'+T('topMarketsS',{n:MINN,h:hlp('minn')})+'</p><div class="mkgrid">';
+      top.sort(function(a,b){ return b.o.index-a.o.index; }).forEach(function(x){
+        h+='<div class="mk">'+ringSVG(x.o.index, idxColor(x.o.index), f0(x.o.index),'',86)
+          +'<div class="mkm"><b>'+esc(ccName(x.k))+'</b><span>n='+x.n+' · '+f0(x.n/rows.length*100)+'%</span>'
+          +'<span class="delta '+(x.o.index-oi.index>1?'up':(x.o.index-oi.index<-1?'down':'flat'))+'">'+(x.o.index-oi.index>0?'+':'')+f1(x.o.index-oi.index)+'</span></div></div>';
+      });
+      h+='</div></div>';
+    }
+  }
   return h;
+}
+function legendList(items, tot){
+  return '<div class="dleg">'+items.map(function(x){
+    return '<div><i style="background:'+x.c+'"></i><span>'+esc(x.l)+'</span><b>'+x.v+'</b>'
+      +'<em>'+(tot? f0(x.v/tot*100)+'%':'')+'</em></div>';
+  }).join('')+'</div>';
 }
 
 /* ---------------- 2/3. Nationalitet / Alder ---------------- */
@@ -1755,8 +2054,8 @@ document.getElementById('btnCopy').addEventListener('click',function(){
   L.push(T('kResp')+': '+rows.length+(rows.length!==ds.rows.length? ' ('+T('ofResp',{a:rows.length,b:ds.rows.length})+')':''));
   L.push(T('kIndex')+': '+(oi?f1(oi.index):'–')+' / 100');
   L.push('');
-  L.push(T('avgPerQ').toUpperCase());
-  items.forEach(function(x){ L.push('  '+f1(x.st.avg)+'/'+x.st.scale+'  '+x.m.short+'  (n='+x.st.n+', '+f0(x.st.low)+'% '+T('colCrit').toLowerCase()+')'); });
+  L.push(T('avgPerQ').toUpperCase()+' ('+T('sIndex').toLowerCase()+' 0-100 | '+T('sAvg').toLowerCase()+')');
+  items.forEach(function(x){ L.push('  '+(' '+f0(x.st.index)).slice(-3)+'   '+f1(x.st.avg)+'/'+x.st.scale+'  '+x.m.short+'  (n='+x.st.n+', '+f0(x.st.low)+'% '+T('colCrit').toLowerCase()+')'); });
   [[countryCol(ds),T('tNat')],[ageCol(ds),T('tAge')],[matchMeta(ds,'__party'),T('dimParty')]].forEach(function(p){
     if(!p[0]) return;
     L.push(''); L.push((T('mIndex')+' — '+p[1]).toUpperCase()+' (min. '+MINN+')');
