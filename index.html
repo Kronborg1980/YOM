@@ -244,6 +244,39 @@ tbody tr:hover td.stick{background:#17293a}
 .score2 i{font-style:normal;font-size:10.5px;color:var(--dim);font-family:'IBM Plex Mono',monospace}
 .warnbar{background:rgba(226,139,75,.10);border:1px solid rgba(226,139,75,.35);color:#f0ab73;
   border-radius:12px;padding:11px 14px;font-size:12.8px;line-height:1.5;margin-bottom:16px}
+/* hovedpointer */
+.inslist{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:10px}
+.ins{display:flex;gap:11px;align-items:flex-start;background:linear-gradient(180deg,var(--card),rgba(18,33,48,.7));
+  border:1px solid var(--line2);border-left-width:3px;border-radius:12px;padding:12px 14px}
+.ins i{font-style:normal;font-weight:800;font-size:12px;width:21px;height:21px;border-radius:50%;
+  display:grid;place-items:center;flex:none;margin-top:1px}
+.ins p{margin:0;font-size:13.2px;line-height:1.5}
+.ins p b{color:#fff}
+.ins.good{border-left-color:var(--good)} .ins.good i{background:rgba(70,176,138,.18);color:#6fd3b0}
+.ins.bad{border-left-color:var(--bad)}   .ins.bad i{background:rgba(224,91,75,.18);color:#f19183}
+.ins.act{border-left-color:var(--brass)} .ins.act i{background:rgba(226,166,75,.18);color:var(--brass)}
+/* matrix */
+.mxwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.matrix{width:100%;min-width:520px;height:auto;display:block}
+.matrix .m-quad{font:800 10.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:1.6px;opacity:.9}
+.matrix .m-num{font:700 12px 'IBM Plex Mono',monospace;fill:var(--ink)}
+.matrix .m-ax{font:700 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:1.3px;text-transform:uppercase;fill:var(--mut)}
+.matrix .s-tick{font:600 10.5px 'IBM Plex Mono',monospace;fill:var(--dim)}
+.qlegend{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:5px;margin-top:14px}
+.qlegend span{display:flex;align-items:center;gap:8px;font-size:12.3px;color:var(--mut);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qlegend i{font-style:normal;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;
+  font:700 11px 'IBM Plex Mono',monospace;color:#0B1723;flex:none}
+.ibar{width:96px;height:8px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden}
+.ibar i{display:block;height:100%;border-radius:5px}
+.daybars{width:100%;height:auto;display:block}
+/* ordsky */
+.cloud{display:flex;flex-wrap:wrap;gap:5px 14px;align-items:baseline;line-height:1.45;padding:4px 0}
+.cw{cursor:pointer;font-weight:700;transition:.12s;border-radius:6px;padding:0 3px}
+.cw:hover{background:rgba(226,166,75,.16);text-decoration:underline}
+/* filterpanel */
+.fbtn{display:none}
+.fbody{display:contents}
 .empty{color:var(--dim); text-align:center; padding:40px; font-size:14px}
 .badge{font-size:10.5px; letter-spacing:1px; text-transform:uppercase; font-weight:700; padding:3px 8px; border-radius:6px}
 .b-bad{background:rgba(224,91,75,.16); color:#f19183}
@@ -261,20 +294,58 @@ details.fields summary{cursor:pointer; color:var(--mut); font-size:12.5px}
   padding:6px 9px; border-radius:8px}
 .fieldgrid input{accent-color:var(--brass)}
 
-@media(max-width:760px){
-  .wrap{padding:14px 12px 70px}
-  .qrow{grid-template-columns:1fr 96px !important; gap:8px}
-  .qrow>div:nth-child(2){grid-column:1/-1; order:3}
-  .g2,.g3{grid-template-columns:1fr}
-  .top-actions{width:100%; margin-left:0}
-  .filters select,.filters input{max-width:100%; flex:1 1 140px}
-  .rcard{gap:10px}
-  h1{font-size:17px}
+@media(max-width:860px){
+  .wrap{padding:12px 11px 76px}
+  h1{font-size:17px} h1 small{font-size:10px;letter-spacing:1.6px}
+  .logo,.logo-fb{height:36px;width:36px}
+  header.top{gap:10px;margin-bottom:14px}
+  .top-actions{width:100%;margin-left:0;gap:6px}
+  .top-actions button{flex:1 1 auto;justify-content:center;padding:10px 8px;font-size:12px}
+  .langsw{order:-1}
+  .qrow{grid-template-columns:1fr 78px !important;gap:6px;padding:10px 0}
+  .qrow>div:nth-child(2){grid-column:1/-1;order:3;margin-top:2px}
+  .qname{white-space:normal;font-size:13px;line-height:1.35}
+  .g2,.g3,.g4,.inslist,.mkgrid,.qlegend,.gl,.fieldgrid{grid-template-columns:1fr !important}
+  .card{padding:14px;border-radius:13px}
+  .sect-title{margin:20px 0 10px}
+  /* filtrene foldes sammen bag én knap */
+  .filters{flex-direction:column;align-items:stretch;padding:0;background:none;border:none;gap:0}
+  .fbtn{display:flex;width:100%;justify-content:space-between;align-items:center;
+    background:rgba(18,33,48,.75);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;font-size:13.5px}
+  .filters.open .fbtn{border-radius:12px 12px 0 0;border-bottom-color:transparent;color:var(--brass)}
+  .fbody{display:none;flex-wrap:wrap;gap:9px;align-items:center;
+    background:rgba(18,33,48,.75);border:1px solid var(--line2);border-top:none;border-radius:0 0 12px 12px;padding:12px 13px}
+  .filters.open .fbody{display:flex}
+  .fbody select,.fbody input[type=search]{max-width:none;width:100%;padding:11px 10px}
+  .fbody .lbl{width:100%}
+  .fbody label.inline{width:100%;justify-content:space-between}
+  /* faneblade scroller vandret */
+  nav.tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    margin:0 -11px 16px;padding:0 11px}
+  nav.tabs::-webkit-scrollbar{display:none}
+  nav.tabs button{flex:none;padding:11px 13px;font-size:13.5px}
+  .dsbar{gap:7px}
+  .tblwrap{max-height:60vh}
+  th,td{padding:8px 9px;font-size:12.3px}
+  td.stick,th.stick{max-width:150px;white-space:normal}
+  .hero-facts{gap:12px}
+  .cmt .txt{font-size:13px}
+  .pop{max-width:calc(100vw - 24px)}
+  .ovl{padding:16px 10px}
+  .ovl .box{padding:18px}
+  select,input[type=search],button{font-size:16px}   /* forhindrer zoom på iOS */
+  .top-actions button,nav.tabs button,.chip,.kw,.sm{font-size:13px}
+  .matrix{min-width:460px}
+}
+@media(max-width:420px){
+  .hero-facts b{font-size:17px}
+  .rcard .ring{width:76px;height:76px}
+  .mk .ring{width:64px;height:64px}
 }
 @media print{
   body{background:#fff; color:#111}
   body::before{display:none}
-  header.top .top-actions, nav.tabs, .filters, .dsbar, .drop, .kw, .q, .pop, .ovl{display:none !important}
+  header.top .top-actions, nav.tabs, .filters, .dsbar, .drop, .kw, .cw, .q, .pop, .ovl, .fbtn{display:none !important}
   .intro{color:#445}
   .card{background:#fff; border:1px solid #ccd; box-shadow:none; break-inside:avoid}
   .card h3,h1{color:#00323d}
@@ -284,7 +355,10 @@ details.fields summary{cursor:pointer; color:var(--mut); font-size:12.5px}
   .qname,.score,.kpi .val,.score2 b{color:#111}
   .hero{grid-template-columns:1fr 1fr}
   .rcard,.mk{border-color:#ccd}
-  .warnbar{color:#7a4a12;background:#fdf3e6}
+  .ins{background:#fff;border-color:#ccd}
+  .ins p,.ins p b{color:#111}
+  .matrix{min-width:0}
+  .qlegend span{color:#334}
 }
 </style>
 </head>
@@ -431,15 +505,11 @@ var CORE = (function(){
       var minV=Infinity,maxV=-Infinity;
       if(numeric){ vals.forEach(function(v){ var n=num(v); if(n<minV)minV=n; if(n>maxV)maxV=n; }); }
       var looksQ = /\?|^\s*\d+(\.\d+)?[a-zA-Z]?[.\s)]/.test(c) || /\brate\b|\bhow\b|overall|satisfaction|score/i.test(c);
-      var scaleHint = (c.match(/scale of \d+\s*(?:to|-|\u2013)\s*(\d+)/i)
-                    || c.match(/\(\s*\d+\s*(?:to|-|\u2013)\s*(\d+)\s*\)/i)
-                    || c.match(/\b1\s*(?:-|\u2013|to)\s*(4|5|7|10)\b/i) || [])[1];
+      var scaleHint = null;
 
       if(numeric && minV>=1 && maxV<=10 && uniqN<=10){
-        m.scale = scaleHint? parseInt(scaleHint,10) : (maxV<=4?4:(maxV<=5?5:(maxV<=7?7:10)));
-        if(m.scale<maxV) m.scale=maxV;
+        m.scale = maxV<=5? 5 : (maxV<=7?7:10);
         m.autoScale = m.scale;
-        m.scaleSure = !!scaleHint;   // står skalaen i spørgsmålsteksten? / is the scale stated in the question?
         m.candidate = true;
       }
       if(m.candidate && !NUM_BLACK.test(c) && !IGNORE_RX.test(c) && looksQ){
@@ -544,6 +614,8 @@ var HIDDEN = {};
 var FORCE = {};
 var SHOWALLF = false;
 var LANG = 'da';
+var TARGET = 80;      // måltal for samlet indeks / target for the overall index
+var FOPEN = false;    // filterpanel åbent på mobil / filter panel open on mobile
 var COLORS = ['#E2A64B','#2FA8B8','#8E7CC3','#46B08A','#E05B4B','#7FBF6A','#D98CB3','#5B9BD5'];
 
 /* ---------------- sprog / language ---------------- */
@@ -610,6 +682,49 @@ var STR = {
  sTop:{da:'% topkarakter',en:'% top marks'},
  sName:{da:'Navn A–Å',en:'Name A–Z'},
  scaleCol:{da:'Skala',en:'Scale'},
+ tDrv:{da:'Drivere',en:'Drivers'},
+ introDrivers:{da:'Ikke alle områder betyder lige meget. Her måles hvert spørgsmål på to ting: hvor godt vi scorer på det — og hvor tæt det hænger sammen med, om gæsten vil anbefale os. Det øverste venstre hjørne er der, hvor indsatsen betaler sig bedst.',en:'Not every area matters equally. Each question is measured on two things: how well we score on it — and how closely it tracks whether the guest will recommend us. The top-left corner is where effort pays off most.'},
+ matrixH:{da:'Prioriteringsmatrix',en:'Priority matrix'},
+ matrixS:{da:'Hver boble er et spørgsmål. Vandret: hvor godt vi scorer. Lodret: hvor meget det betyder for «{q}». Stiplede linjer er midten af feltet.',en:'Each bubble is a question. Horizontal: how well we score. Vertical: how much it matters for «{q}». The dashed lines are the middle of the field.'},
+ qFix:{da:'LØFT FØRST',en:'FIX FIRST'},
+ qKeep:{da:'BEVAR STYRKEN',en:'KEEP IT UP'},
+ qWatch:{da:'HOLD ØJE',en:'MONITOR'},
+ qLow:{da:'LAV PRIORITET',en:'LOW PRIORITY'},
+ axPerf:{da:'Vores score',en:'Our score'},
+ axImpact:{da:'Betydning',en:'Impact'},
+ impact:{da:'Betydning',en:'Impact'},
+ actionList:{da:'Handlingsliste',en:'Action list'},
+ actionListS:{da:'Samme spørgsmål som i matrixen, sorteret så det vigtigste står øverst.',en:'The same questions as in the matrix, sorted with the most important on top.'},
+ recommendation:{da:'Anbefaling',en:'Recommendation'},
+ act_fix:{da:'Løft først',en:'Fix first'},
+ act_keep:{da:'Bevar',en:'Keep it up'},
+ act_watch:{da:'Hold øje',en:'Monitor'},
+ act_low:{da:'Lav prioritet',en:'Low priority'},
+ noDriver:{da:'Der er ikke svar nok til en driveranalyse i det aktuelle udsnit. Prøv at fjerne et filter.',en:'There are not enough responses for a driver analysis in this selection. Try removing a filter.'},
+ departures:{da:'Afgang for afgang',en:'Sailing by sailing'},
+ departuresS:{da:'Samlet indeks pr. afgangsdato · kun afgange med mindst {n} besvarelser',en:'Overall index per departure date · only sailings with at least {n} responses'},
+ departure:{da:'Afgang',en:'Departure'},
+ activity:{da:'Aktivitet',en:'Activity'},
+ perDay:{da:'Besvarelser pr. dag',en:'Responses per day'},
+ perDayS:{da:'{a} – {b} · travleste dag: {m} besvarelser',en:'{a} – {b} · busiest day: {m} responses'},
+ takeaways:{da:'Hovedpointer',en:'Key takeaways'},
+ insBest:{da:'Stærkest: <b>{q}</b> med indeks <b>{v}</b> — {p}% gav topkarakter.',en:'Strongest: <b>{q}</b> at index <b>{v}</b> — {p}% gave top marks.'},
+ insWorst:{da:'Svagest: <b>{q}</b> med indeks <b>{v}</b> — {p}% gav 1 eller 2.',en:'Weakest: <b>{q}</b> at index <b>{v}</b> — {p}% gave 1 or 2.'},
+ insDriver:{da:'Størst effekt for indsatsen: <b>{q}</b> betyder meget for om gæsten anbefaler os, men ligger kun på indeks {v}.',en:'Best return on effort: <b>{q}</b> weighs heavily on whether guests recommend us, yet sits at only index {v}.'},
+ insDriverOk:{da:'<b>{q}</b> vægter tungest for om gæsten anbefaler os — og ligger fint på indeks {v}. Hold fast i den.',en:'<b>{q}</b> weighs heaviest on whether guests recommend us — and sits comfortably at index {v}. Hold on to it.'},
+ insSegment:{da:'<b>{g}</b> ({d}) ligger {gap} point under gennemsnittet med indeks {v} (n={n}).',en:'<b>{g}</b> ({d}) sits {gap} points below average at index {v} (n={n}).'},
+ insMarket:{da:'Mest tilfredse marked: <b>{g}</b> med indeks {v} (n={n}).',en:'Most satisfied market: <b>{g}</b> at index {v} (n={n}).'},
+ insUnhappy:{da:'<b>{n} gæster</b> ({p}%) har et samlet indeks under 50 — se dem under Fokusområder.',en:'<b>{n} guests</b> ({p}%) have an overall index below 50 — see them under Focus areas.'},
+ insTrend:{da:'Samlet indeks er <b>{d} point</b> i forhold til {x}.',en:'Overall index is <b>{d} points</b> against {x}.'},
+ insDrop:{da:'Største tilbagegang: <b>{q}</b> er faldet {v} point siden {x}.',en:'Biggest drop: <b>{q}</b> is down {v} points since {x}.'},
+ insTheme:{da:'Ordet <b>«{w}»</b> går igen i {n} af {t} kommentarer fra utilfredse gæster.',en:'The word <b>«{w}»</b> recurs in {n} of {t} comments from unhappy guests.'},
+ cloud:{da:'Ordsky',en:'Word cloud'},
+ cloudS:{da:'Jo større ord, jo oftere nævnt. Farven viser om ordet mest optræder hos tilfredse (grøn) eller utilfredse (rød) gæster. Klik for at filtrere.',en:'The bigger the word, the more often it is mentioned. The colour shows whether it mostly appears among satisfied (green) or unhappy (red) guests. Click to filter.'},
+ filterBtn:{da:'Filtre og indstillinger',en:'Filters and settings'},
+ target:{da:'Mål',en:'Target'},
+ targetHit:{da:'{v} over målet på {t}',en:'{v} above the {t} target'},
+ targetMiss:{da:'{v} under målet på {t}',en:'{v} below the {t} target'},
+ jump:{da:'Spring til',en:'Jump to'},
  heroTitle:{da:'Sådan står det til',en:'How we are doing'},
  heroSub:{da:'Alle vurderingsspørgsmål lagt sammen på den samme målestok',en:'Every rating question combined on one common yardstick'},
  kIndexN2:{da:'tilfredshedsindeks',en:'satisfaction index'},
@@ -832,6 +947,12 @@ var HELP = {
          en:{t:'Guest profile',d:'The distribution across all background and choice questions: who answered, where they went, which cabin, where they heard about you. No scores — just who and what.'}},
  laveste:{da:{t:'Laveste score',d:'Det spørgsmål der har det laveste indeks. Bemærk at sammenligningen sker på indeks (0–100), ikke på det rå gennemsnit, netop fordi skalaerne er forskellige.'},
           en:{t:'Lowest score',d:'The question with the lowest index. Note the comparison uses the index (0–100), not the raw average, precisely because the scales differ.'}},
+ drivere:{da:{t:'Betydning (driveranalyse)',d:'Hvor tæt et spørgsmål hænger sammen med, om gæsten vil anbefale os. Spørgsmål med høj betydning flytter helhedsindtrykket; spørgsmål med lav betydning kan godt score lavt uden at koste anbefalinger.',ex:'Det er en sammenhæng, ikke et bevis for årsag — men det er det bedste pejlemærke for hvor indsatsen betaler sig.'},
+          en:{t:'Impact (driver analysis)',d:'How closely a question tracks whether the guest will recommend us. High-impact questions move the overall impression; low-impact ones can score poorly without costing recommendations.',ex:'It is a correlation, not proof of cause — but it is the best pointer to where effort pays off.'}},
+ hovedpointer:{da:{t:'Hovedpointer',d:'Automatisk udtræk af det, der springer mest i øjnene i det udsnit du kigger på: stærkeste og svageste område, det segment der ligger længst under, og udviklingen hvis du har flere perioder inde. Sætter du et filter, skifter pointerne med.'},
+               en:{t:'Key takeaways',d:'An automatic pull of whatever stands out most in the selection you are viewing: strongest and weakest area, the segment sitting furthest below, and the trend if you have several periods loaded. Set a filter and the takeaways follow.'}},
+ maal2:{da:{t:'Mål',d:'Sæt jeres eget måltal for det samlede indeks. Det tegnes som en streg på måleren, så alle kan se om vi er over eller under — og det følger med i print og resumé.'},
+        en:{t:'Target',d:'Set your own target for the overall index. It is drawn as a line on the gauge so everyone can see whether we are above or below — and it carries into print and the summary.'}},
  hoejeste:{da:{t:'Højeste score',d:'Det spørgsmål der har det højeste indeks — jeres stærkeste kort, og det der er værd at passe på.'},
            en:{t:'Highest score',d:'The question with the highest index — your strongest card, and the one worth protecting.'}}
 };
@@ -1087,6 +1208,7 @@ function render(){
     else if(TAB==='nation') v.innerHTML=viewDim(countryCol(DS[ACTIVE]),T('tNat'));
     else if(TAB==='alder') v.innerHTML=viewDim(ageCol(DS[ACTIVE]),T('tAge'));
     else if(TAB==='segment') v.innerHTML=viewSegment();
+    else if(TAB==='drivere') v.innerHTML=viewDrivers();
     else if(TAB==='fokus') v.innerHTML=viewFocus();
     else if(TAB==='profil') v.innerHTML=viewProfile();
     else if(TAB==='kommentarer') v.innerHTML=viewComments();
@@ -1160,7 +1282,10 @@ function renderFilters(){
     return ia-ib || b.n-a.n;
   });
   var show = SHOWALLF? cs : cs.slice(0,5);
-  var h='<span class="lbl">'+T('filters')+hlp('filtre')+'</span>';
+  var nSel=Object.keys(FILTERS).filter(function(k){return FILTERS[k];}).length + (SEARCH?1:0);
+  var h='<button class="fbtn" id="fToggle" aria-expanded="'+(FOPEN?'true':'false')+'">'
+    +'<span>⚙ '+T('filterBtn')+(nSel?' · '+nSel:'')+'</span><span>'+(FOPEN?'▴':'▾')+'</span></button>'
+    +'<div class="fbody"><span class="lbl">'+T('filters')+hlp('filtre')+'</span>';
   show.forEach(function(m){
     var g=CORE.groupBy(ds.rows,m.col,m.multi), counts={};
     Object.keys(g).forEach(function(k){ counts[k]=g[k].length; });
@@ -1174,6 +1299,9 @@ function renderFilters(){
   if(cs.length>5) h+='<button class="sm" id="moreF">'+(SHOWALLF?T('lessF'):T('moreF')+' ('+(cs.length-5)+')')+'</button>';
   h+='<input type="search" id="gsearch" placeholder="'+T('searchAll')+'" value="'+esc(SEARCH)+'" style="max-width:200px">'+hlp('soeg');
   h+='<label class="inline">'+T('minPer')+hlp('minn')+' <input type="range" id="minN" min="1" max="30" value="'+MINN+'"><b class="mono" id="minNv">'+MINN+'</b></label>';
+  h+='<label class="inline">'+T('target')+hlp('maal2')+' <select id="tgt" style="padding:6px 8px">'
+    + [60,65,70,75,80,85,90,95].map(function(v){ return '<option value="'+v+'"'+(TARGET===v?' selected':'')+'>'+v+'</option>'; }).join('')
+    + '</select></label>';
   var nAct=Object.keys(FILTERS).filter(function(k){return FILTERS[k];}).length + (SEARCH?1:0);
   if(nAct) h+='<button class="sm" id="clearF">'+T('clearF',{n:nAct})+'</button>';
   var nf2=rowsOf(ds).length;
@@ -1186,12 +1314,17 @@ function renderFilters(){
         var opts=[4,5,7,10].map(function(v){ return '<option value="'+v+'"'+(m.scale===v?' selected':'')+'>1–'+v+'</option>'; }).join('');
         return '<label><input type="checkbox" data-fld="'+esc(m.k)+'" data-t="'+m.type+'"'+(on?' checked':'')+'> '
           + '<span style="flex:1;overflow:hidden;text-overflow:ellipsis" title="'+esc(m.label)+'">'+esc(m.short)
-          + (m.scaleSure?'':' <span title="'+T('guessed')+'" style="color:var(--warn)">⚠</span>')+'</span>'
+          +'</span>'
           + '<span style="color:var(--dim)">n='+m.n+'</span>'
           + '<select data-sc="'+esc(m.k)+'" style="padding:2px 5px;font-size:11.5px">'+opts+'</select></label>';
       }).join('')
-    + '</div><p class="sub" style="margin-top:10px">'+T('fieldsHint')+'</p></details>';
+    + '</div><p class="sub" style="margin-top:10px">'+T('fieldsHint')+'</p></details></div>';
+  el.className='filters'+(FOPEN?' open':'');
   el.innerHTML=h;
+  var ft=document.getElementById('fToggle');
+  if(ft) ft.addEventListener('click',function(){ FOPEN=!FOPEN; render(); });
+  var tg=document.getElementById('tgt');
+  if(tg) tg.addEventListener('change',function(){ TARGET=+tg.value; render(); });
   el.querySelectorAll('select[data-f]').forEach(function(s){
     s.addEventListener('change',function(){ FILTERS[s.dataset.f]=s.value; render(); });
   });
@@ -1220,7 +1353,7 @@ function renderFilters(){
 }
 function renderTabs(){
   var t=[['overblik',T('tOver')],['nation',T('tNat')],['alder',T('tAge')],['segment',T('tSeg')],
-         ['fokus',T('tFoc')],['profil',T('tPro')],['kommentarer',T('tCom')]];
+         ['drivere',T('tDrv')],['fokus',T('tFoc')],['profil',T('tPro')],['kommentarer',T('tCom')]];
   if(DS.length>1) t.push(['sammenlign',T('tCmp',{n:DS.length})]);
   document.getElementById('tabs').innerHTML = t.map(function(x){
     return '<button data-t="'+x[0]+'" class="'+(TAB===x[0]?'on':'')+'">'+x[1]+'</button>';
@@ -1297,12 +1430,14 @@ function gaugeSVG(idx, opts){
     +'<stop offset="0%" stop-color="'+col+'88"/><stop offset="100%" stop-color="'+col+'"/></linearGradient></defs>';
   h2+='<path d="'+d+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="'+sw+'" stroke-linecap="round"/>';
   h2+='<path d="'+d+'" fill="none" stroke="url(#gg)" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+len+' '+(C-len+2)+'"/>';
-  if(opts.mark!=null){
-    var a=Math.PI*(1-Math.max(0,Math.min(100,opts.mark))/100);
+  function tick(val,col,wid,lbl){
+    var a=Math.PI*(1-Math.max(0,Math.min(100,val))/100);
     var x1=cx+Math.cos(a)*(r-sw/2-3), y1=cy-Math.sin(a)*(r-sw/2-3);
-    var x2=cx+Math.cos(a)*(r+sw/2+3), y2=cy-Math.sin(a)*(r+sw/2+3);
-    h2+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#E8EEF4" stroke-width="2.5" stroke-linecap="round" opacity=".75"><title>'+esc(opts.markLabel||'')+'</title></line>';
+    var x2=cx+Math.cos(a)*(r+sw/2+4), y2=cy-Math.sin(a)*(r+sw/2+4);
+    return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'" stroke-width="'+wid+'" stroke-linecap="round"><title>'+esc(lbl||'')+'</title></line>';
   }
+  if(opts.mark!=null) h2+=tick(opts.mark,'rgba(232,238,244,.7)',2.5,opts.markLabel);
+  if(opts.target!=null) h2+=tick(opts.target,'#E2A64B',3.5,T('target')+': '+opts.target);
   h2+='<text x="'+cx+'" y="'+(cy-30)+'" text-anchor="middle" class="g-val" fill="'+col+'">'+(idx==null?'–':f1(idx))+'</text>';
   h2+='<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" class="g-cap">'+esc(opts.cap||'')+'</text>';
   h2+='<text x="'+(cx-r)+'" y="'+(cy+22)+'" text-anchor="middle" class="g-tick">0</text>';
@@ -1375,9 +1510,6 @@ function scoreCell(st){
 }
 
 /* ---------------- 1. Overblik / Overview ---------------- */
-function guessedScales(ds){
-  return ratings(ds).filter(function(m){ return !m.scaleSure && m.scale<5; });
-}
 function viewOverview(){
   var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
   if(!rs.length) return '<div class="empty">'+T('noRating')+'</div>';
@@ -1412,19 +1544,16 @@ function viewOverview(){
 
   var h=intro(T('introOver'),'samlet');
 
-  /* --- advarsel om gættet skala --- */
-  var gs=guessedScales(ds);
-  if(gs.length) h+='<div class="warnbar">⚠ '+T('scaleWarn',{n:gs.length,x:esc(gs.map(function(m){return m.short+' (1–'+m.scale+')';}).join(', '))})+hlp('skala')+'</div>';
-
   /* --- hero --- */
   h+='<div class="hero">';
   h+='<div class="card accent hero-main"><h3>'+T('heroTitle')+hlp('samlet')+'</h3>'
     +'<p class="sub">'+T('heroSub')+'</p>'
-    + gaugeSVG(oi? oi.index:null,{cap:T('kIndexN2'),mark:mark,markLabel:markLbl})
+    + gaugeSVG(oi? oi.index:null,{cap:T('kIndexN2'),mark:mark,markLabel:markLbl,target:TARGET})
     +'<div class="hero-facts">'
       +'<div><b>'+rows.length+'</b><span>'+T('kResp')+(rows.length!==ds.rows.length? ' ('+T('kRespOf',{n:ds.rows.length})+')':'')+'</span></div>'
       +'<div><b>'+items.length+'</b><span>'+T('heroQ')+'</span></div>'
       +(mark!=null? '<div><b class="delta '+(oi.index-mark>0.5?'up':(oi.index-mark<-0.5?'down':'flat'))+'">'+(oi.index-mark>0?'+':'')+f1(oi.index-mark)+'</b><span>'+T('vsBase',{d:'',x:esc(DS[ACTIVE===0?1:0].label)}).trim()+'</span></div>' : '')
+      +(oi? '<div><b class="delta '+(oi.index>=TARGET?'up':'down')+'">'+(oi.index-TARGET>0?'+':'')+f1(oi.index-TARGET)+'</b><span>'+(oi.index>=TARGET? T('targetHit',{v:'',t:TARGET}) : T('targetMiss',{v:'',t:TARGET})).replace(/^\s+/,'')+'</span></div>' : '')
     +'</div></div>';
 
   h+='<div class="card"><h3>'+T('sentiment')+hlp('utilfredse')+'</h3><p class="sub">'+T('sentimentS')+'</p>'
@@ -1460,6 +1589,8 @@ function viewOverview(){
       }).join('')
     +'</div></div>';
   h+='</div>';
+
+  h+=insightCards(ds,rows);
 
   /* --- gør vi godt / skal løftes --- */
   function ringCards(list,accent){
@@ -1503,6 +1634,10 @@ function viewOverview(){
         + sparkSVG(pts)+'</div>';
     }
   }
+
+  /* --- svar pr. dag --- */
+  var db=dayBarsSVG(rows,ds);
+  if(db) h+='<div class="sect-title">'+T('activity')+'</div>'+db;
 
   /* --- alle spørgsmål --- */
   var maxSc=Math.max.apply(null,rs.map(function(m){return m.scale;}));
@@ -1743,7 +1878,282 @@ function viewSegment(){
   return h;
 }
 
-/* ---------------- 5. Fokusområder / Focus ---------------- */
+/* ---------------- korrelation / driveranalyse ---------------- */
+function corrOf(rows, colA, colB){
+  var n=0,sa=0,sb=0,saa=0,sbb=0,sab=0;
+  for(var i=0;i<rows.length;i++){
+    var a=CORE.num(rows[i][colA]), b=CORE.num(rows[i][colB]);
+    if(a===null||b===null) continue;
+    n++; sa+=a; sb+=b; saa+=a*a; sbb+=b*b; sab+=a*b;
+  }
+  if(n<12) return null;
+  var va=saa/n-(sa/n)*(sa/n), vb=sbb/n-(sb/n)*(sb/n);
+  if(va<=0||vb<=0) return null;
+  return {r:(sab/n-(sa/n)*(sb/n))/Math.sqrt(va*vb), n:n};
+}
+function targetQ(ds){
+  var rs=ratings(ds), t=null;
+  rs.forEach(function(m){ if(/recommend/i.test(m.col)) t=m; });
+  if(!t) rs.forEach(function(m){ if(/overall/i.test(m.col)) t=m; });
+  return t;
+}
+function driverData(ds, rows){
+  var rs=ratings(ds), tq=targetQ(ds);
+  if(!tq) return null;
+  var out=[];
+  rs.forEach(function(m){
+    if(m.k===tq.k) return;
+    var need=Math.max(15, Math.round(rows.length*0.12));
+    var st=CORE.stat(rows,m.col,m.scale); if(!st || st.n<need) return;
+    var c=corrOf(rows,m.col,tq.col); if(!c) return;
+    out.push({m:m, st:st, r:Math.max(0,c.r), n:c.n});
+  });
+  if(out.length<3) return null;
+  return {target:tq, items:out};
+}
+function median(a){
+  if(!a.length) return 0;
+  var b=a.slice().sort(function(x,y){return x-y;}), i=Math.floor(b.length/2);
+  return b.length%2? b[i] : (b[i-1]+b[i])/2;
+}
+
+/* ---------------- 5. Drivere / Drivers ---------------- */
+function viewDrivers(){
+  var ds=DS[ACTIVE], rows=rowsOf(ds);
+  if(!rows.length) return '<div class="empty">'+T('noRowsFilter')+'</div>';
+  var d=driverData(ds,rows);
+  if(!d) return '<div class="empty">'+T('noDriver')+'</div>';
+
+  var xs=d.items.map(function(x){return x.st.index;}), ys=d.items.map(function(x){return x.r;});
+  var mx=median(xs), my=median(ys);
+  d.items.forEach(function(x,i){
+    x.i=i+1;
+    x.quad = x.r>=my ? (x.st.index>=mx? 'keep':'fix') : (x.st.index>=mx? 'low':'watch');
+  });
+  var order={fix:0,keep:1,watch:2,low:3};
+  var sorted=d.items.slice().sort(function(a,b){ return order[a.quad]-order[b.quad] || b.r-a.r; });
+
+  var h=intro(T('introDrivers'),'drivere');
+
+  /* --- matrix --- */
+  var W=760,H=470,pl=64,pr=26,pt=26,pb=54;
+  var iw=W-pl-pr, ih=H-pt-pb;
+  var x0=Math.max(0,Math.min.apply(null,xs)-8), x1=Math.min(100,Math.max.apply(null,xs)+8);
+  if(x1-x0<20){ x0=Math.max(0,x0-10); x1=Math.min(100,x1+10); }
+  var y0=Math.max(0,Math.min.apply(null,ys)-.06), y1=Math.min(1,Math.max.apply(null,ys)+.06);
+  if(y1-y0<.15){ y0=Math.max(0,y0-.08); y1=Math.min(1,y1+.08); }
+  function X(v){ return pl+(v-x0)/(x1-x0)*iw; }
+  function Y(v){ return pt+(1-(v-y0)/(y1-y0))*ih; }
+  var qc={fix:'#E05B4B',keep:'#46B08A',watch:'#E2A64B',low:'#5F7486'};
+
+  var g='<svg viewBox="0 0 '+W+' '+H+'" class="matrix" role="img">';
+  g+='<rect x="'+pl+'" y="'+pt+'" width="'+(X(mx)-pl)+'" height="'+(Y(my)-pt)+'" fill="rgba(224,91,75,.07)"/>';
+  g+='<rect x="'+X(mx)+'" y="'+pt+'" width="'+(pl+iw-X(mx))+'" height="'+(Y(my)-pt)+'" fill="rgba(70,176,138,.07)"/>';
+  g+='<rect x="'+pl+'" y="'+Y(my)+'" width="'+(X(mx)-pl)+'" height="'+(pt+ih-Y(my))+'" fill="rgba(226,166,75,.06)"/>';
+  g+='<line x1="'+X(mx)+'" y1="'+pt+'" x2="'+X(mx)+'" y2="'+(pt+ih)+'" stroke="rgba(255,255,255,.16)" stroke-dasharray="4 4"/>';
+  g+='<line x1="'+pl+'" y1="'+Y(my)+'" x2="'+(pl+iw)+'" y2="'+Y(my)+'" stroke="rgba(255,255,255,.16)" stroke-dasharray="4 4"/>';
+  g+='<rect x="'+pl+'" y="'+pt+'" width="'+iw+'" height="'+ih+'" fill="none" stroke="rgba(255,255,255,.10)"/>';
+  g+='<text x="'+(pl+8)+'" y="'+(pt+18)+'" class="m-quad" fill="#E05B4B">'+esc(T('qFix'))+'</text>';
+  g+='<text x="'+(pl+iw-8)+'" y="'+(pt+18)+'" text-anchor="end" class="m-quad" fill="#46B08A">'+esc(T('qKeep'))+'</text>';
+  g+='<text x="'+(pl+8)+'" y="'+(pt+ih-8)+'" class="m-quad" fill="#E2A64B">'+esc(T('qWatch'))+'</text>';
+  g+='<text x="'+(pl+iw-8)+'" y="'+(pt+ih-8)+'" text-anchor="end" class="m-quad" fill="#8FA3B3">'+esc(T('qLow'))+'</text>';
+  d.items.forEach(function(x){
+    var cx=X(x.st.index), cy=Y(x.r);
+    g+='<circle cx="'+cx+'" cy="'+cy+'" r="17" fill="'+qc[x.quad]+'" fill-opacity=".22" stroke="'+qc[x.quad]+'" stroke-width="2">'
+      +'<title>'+esc(x.m.short)+'\u000a'+esc(T('sIndex'))+': '+f1(x.st.index)+'\u000a'+esc(T('impact'))+': '+f1(x.r*100)+'%</title></circle>';
+    g+='<text x="'+cx+'" y="'+(cy+5)+'" text-anchor="middle" class="m-num" pointer-events="none">'+x.i+'</text>';
+  });
+  g+='<text x="'+(pl+iw/2)+'" y="'+(H-16)+'" text-anchor="middle" class="m-ax">'+esc(T('axPerf'))+' \u2192</text>';
+  g+='<text x="16" y="'+(pt+ih/2)+'" text-anchor="middle" class="m-ax" transform="rotate(-90 16 '+(pt+ih/2)+')">'+esc(T('axImpact'))+' \u2192</text>';
+  [x0,(x0+x1)/2,x1].forEach(function(v){ g+='<text x="'+X(v)+'" y="'+(pt+ih+18)+'" text-anchor="middle" class="s-tick">'+f0(v)+'</text>'; });
+  g+='</svg>';
+
+  h+='<div class="card"><h3>'+T('matrixH')+hlp('drivere')+'</h3><p class="sub">'+T('matrixS',{q:esc(d.target.short)})+'</p>'
+    +'<div class="mxwrap">'+g+'</div>'
+    +'<div class="qlegend">'+d.items.map(function(x){
+        return '<span><i style="background:'+qc[x.quad]+'">'+x.i+'</i>'+esc(x.m.short)+'</span>';
+      }).join('')+'</div></div>';
+
+  /* --- handlingsliste --- */
+  h+='<div class="sect-title">'+T('actionList')+'</div><div class="card"><p class="sub">'+T('actionListS')+'</p>'
+    +'<div class="tblwrap" style="max-height:none"><table><thead><tr>'
+    +'<th class="stick">'+T('question')+'</th><th>'+T('axPerf')+hlp('indeks')+'</th><th>'+T('impact')+hlp('drivere')+'</th>'
+    +'<th>'+T('colCrit')+hlp('kritiske')+'</th><th>'+T('colResp')+'</th><th>'+T('recommendation')+'</th></tr></thead><tbody>';
+  sorted.forEach(function(x){
+    h+='<tr><td class="stick"><b>'+x.i+'.</b> '+esc(x.m.short)+'</td>'
+      +'<td><span class="cell" style="background:'+idxColor(x.st.index)+'">'+f0(x.st.index)+'</span></td>'
+      +'<td><div class="ibar"><i style="width:'+(x.r*100)+'%;background:'+qc[x.quad]+'"></i></div></td>'
+      +'<td class="num">'+f0(x.st.low)+'%</td><td class="num">'+x.st.n+'</td>'
+      +'<td><span class="badge '+(x.quad==='fix'?'b-bad':(x.quad==='keep'?'b-good':'b-warn'))+'">'+T('act_'+x.quad)+'</span></td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+
+  /* --- afgange --- */
+  h+=departureSection(ds,rows);
+  return h;
+}
+
+/* ---------------- afgange / departures ---------------- */
+function departureCol(ds){ return findCol(ds,/departure date/i); }
+function departureSection(ds, rows){
+  var dc=departureCol(ds); if(!dc) return '';
+  var rs=ratings(ds);
+  var g=CORE.groupBy(rows,dc.col,false);
+  var keys=Object.keys(g).filter(function(k){ return g[k].length>=Math.max(4,MINN); });
+  if(keys.length<2) return '';
+  var list=keys.map(function(k){
+    var o=CORE.overallIndex(g[k],rs);
+    return o? {k:k, v:o.index, n:g[k].length, d:parseDate(k)} : null;
+  }).filter(Boolean).sort(function(a,b){ return b.v-a.v; });
+  if(list.length<2) return '';
+  var h='<div class="sect-title">'+T('departures')+'</div><div class="card"><p class="sub">'+T('departuresS',{n:Math.max(4,MINN)})+'</p>'
+    +'<div class="tblwrap" style="max-height:420px"><table><thead><tr><th class="stick">'+T('departure')+'</th><th>'+T('sIndex')+'</th><th></th><th>'+T('colResp')+'</th></tr></thead><tbody>';
+  list.forEach(function(x){
+    h+='<tr><td class="stick">'+esc(fmtDate(x.d)||x.k)+'</td>'
+      +'<td><span class="cell" style="background:'+idxColor(x.v)+'">'+f0(x.v)+'</span></td>'
+      +'<td style="width:52%">'+bar(x.v,idxColor(x.v))+'</td>'
+      +'<td class="num">'+x.n+'</td></tr>';
+  });
+  return h+'</tbody></table></div></div>';
+}
+function parseDate(s){
+  s=CORE.norm(s); if(!s) return null;
+  var m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+  if(m){ var y=+m[3]; if(y<100) y+=2000; return new Date(y,+m[2]-1,+m[1]); }
+  var d=new Date(s); return isNaN(d)? null : d;
+}
+function fmtDate(d){
+  if(!d) return null;
+  return d.getDate()+'. '+T('months')[d.getMonth()]+' '+d.getFullYear();
+}
+
+/* ---------------- svar pr. dag / responses per day ---------------- */
+function dayBarsSVG(rows, ds){
+  var sc=findCol(ds,/submission date/i) || departureCol(ds);
+  if(!sc) return '';
+  var c={};
+  rows.forEach(function(r){
+    var d=parseDate(r[sc.col]); if(!d) return;
+    var k=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+    c[k]=(c[k]||0)+1;
+  });
+  var keys=Object.keys(c).sort();
+  if(keys.length<3) return '';
+  if(keys.length>60) keys=keys.slice(-60);
+  var max=Math.max.apply(null,keys.map(function(k){return c[k];}));
+  var W=740,H=120,pb=24,gap=keys.length>28?1:3;
+  var bw=(W-keys.length*gap)/keys.length;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" class="daybars" preserveAspectRatio="none" role="img">';
+  keys.forEach(function(k,i){
+    var bh=Math.max(2,c[k]/max*(H-pb));
+    var x=i*(bw+gap);
+    s+='<rect x="'+x+'" y="'+(H-pb-bh)+'" width="'+bw+'" height="'+bh+'" rx="2" fill="var(--teal)" fill-opacity=".75">'
+      +'<title>'+k+': '+c[k]+'</title></rect>';
+  });
+  s+='</svg>';
+  var d0=parseDate(keys[0].split('-').reverse().join('/')) || new Date(keys[0]);
+  var d1=parseDate(keys[keys.length-1].split('-').reverse().join('/')) || new Date(keys[keys.length-1]);
+  return '<div class="card"><h3>'+T('perDay')+'</h3><p class="sub">'+T('perDayS',{a:esc(fmtDate(d0)||''),b:esc(fmtDate(d1)||''),m:max})+'</p>'+s+'</div>';
+}
+
+/* ---------------- hovedpointer / key takeaways ---------------- */
+function insights(ds, rows){
+  var rs=ratings(ds), out=[];
+  if(!rs.length||!rows.length) return out;
+  var oi=CORE.overallIndex(rows,rs);
+  var items=rs.map(function(m){ return {m:m,st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;})
+              .sort(function(a,b){ return a.st.index-b.st.index; });
+  if(!items.length) return out;
+
+  out.push({t:'good', x:T('insBest',{q:items[items.length-1].m.short, v:f0(items[items.length-1].st.index),
+            p:f0(items[items.length-1].st.top)})});
+  out.push({t:'bad', x:T('insWorst',{q:items[0].m.short, v:f0(items[0].st.index), p:f0(items[0].st.low)})});
+
+  /* driver */
+  var d=driverData(ds,rows);
+  if(d){
+    var my=median(d.items.map(function(x){return x.r;})), mx=median(d.items.map(function(x){return x.st.index;}));
+    var fix=d.items.filter(function(x){ return x.r>=my && x.st.index<mx; }).sort(function(a,b){ return b.r-a.r; })[0];
+    if(fix) out.push({t:'act', x:T('insDriver',{q:fix.m.short, v:f0(fix.st.index)})});
+    else {
+      var keep=d.items.slice().sort(function(a,b){ return b.r-a.r; })[0];
+      if(keep) out.push({t:'good', x:T('insDriverOk',{q:keep.m.short, v:f0(keep.st.index)})});
+    }
+  }
+
+  /* segmentudsving */
+  var worstSeg=null;
+  dims(ds).forEach(function(dim){
+    if(dim.k==='__sat'||dim.k==='__nps') return;
+    var g=CORE.groupBy(rows,dim.col,dim.multi);
+    Object.keys(g).forEach(function(nm){
+      if(g[nm].length<Math.max(12,MINN*2)) return;
+      if(CORE.norm(nm).length>34) return;
+      var o=CORE.overallIndex(g[nm],rs); if(!o||!oi) return;
+      var gap=o.index-oi.index;
+      if(gap<-5 && (!worstSeg||gap<worstSeg.gap)) worstSeg={dim:dim,nm:nm,gap:gap,v:o.index,n:g[nm].length};
+    });
+  });
+  if(worstSeg) out.push({t:'bad', x:T('insSegment',{g:valLabel(worstSeg.dim)(worstSeg.nm), d:esc(dimName(worstSeg.dim).toLowerCase()),
+                          v:f0(worstSeg.v), gap:f1(Math.abs(worstSeg.gap)), n:worstSeg.n})});
+
+  /* bedste marked */
+  var cc=countryCol(ds);
+  if(cc){
+    var gc=CORE.groupBy(rows,cc.col,cc.multi), best=null;
+    Object.keys(gc).forEach(function(k){
+      if(gc[k].length<Math.max(12,MINN*2)) return;
+      var o=CORE.overallIndex(gc[k],rs); if(!o) return;
+      if(!best||o.index>best.v) best={k:k,v:o.index,n:gc[k].length};
+    });
+    if(best) out.push({t:'good', x:T('insMarket',{g:ccName(best.k), v:f0(best.v), n:best.n})});
+  }
+
+  /* utilfredse */
+  var un=rows.filter(function(r){ var v=CORE.respondentIndex(r,rs,3); return v!=null && v<50; }).length;
+  if(un) out.push({t:'act', x:T('insUnhappy',{n:un, p:f0(un/rows.length*100)})});
+
+  /* udvikling vs andet datasæt */
+  if(DS.length>1 && ACTIVE!==0){
+    var base=DS[0], ob=CORE.overallIndex(rowsOf(base),ratings(base));
+    if(ob&&oi){
+      var dd=oi.index-ob.index;
+      out.push({t:Math.abs(dd)<1?'act':(dd>0?'good':'bad'), x:T('insTrend',{d:(dd>0?'+':'')+f1(dd), x:base.label})});
+      var drop=null;
+      rs.forEach(function(m){
+        var mm=matchMeta(base,m.k); if(!mm) return;
+        var a=CORE.stat(rowsOf(base),mm.col,mm.scale), b=CORE.stat(rows,m.col,m.scale);
+        if(!a||!b) return;
+        var g2=b.index-a.index;
+        if(g2<-3 && (!drop||g2<drop.g)) drop={q:m.short,g:g2};
+      });
+      if(drop) out.push({t:'bad', x:T('insDrop',{q:drop.q, v:f1(Math.abs(drop.g)), x:base.label})});
+    }
+  }
+
+  /* hyppigste tema blandt utilfredse */
+  var cm=commentCol(ds);
+  if(cm){
+    var low=rows.filter(function(r){ var v=CORE.respondentIndex(r,rs,2); return v!=null && v<60 && CORE.norm(r[cm.col]); })
+                .map(function(r){ return CORE.norm(r[cm.col]); });
+    if(low.length>=5){
+      var kw=keywords(low)[0];
+      if(kw && kw.n>=3) out.push({t:'act', x:T('insTheme',{w:kw.w, n:kw.n, t:low.length})});
+    }
+  }
+  return out;
+}
+function insightCards(ds, rows){
+  var ins=insights(ds,rows);
+  if(!ins.length) return '';
+  var ic={good:'✓',bad:'!',act:'→'};
+  return '<div class="sect-title">'+T('takeaways')+hlp('hovedpointer')+'</div>'
+    +'<div class="inslist">'+ins.map(function(x){
+      return '<div class="ins '+x.t+'"><i>'+ic[x.t]+'</i><p>'+x.x+'</p></div>';
+    }).join('')+'</div>';
+}
+
+/* ---------------- 6. Fokusområder / Focus ---------------- */
 function viewFocus(){
   var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
   var items=rs.map(function(m){ return {m:m,st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;})
@@ -1885,6 +2295,17 @@ function viewComments(){
 
   var kws=keywords(all.map(function(x){return x.txt;}));
   if(kws.length){
+    var mx=kws[0].n, cloud=kws.slice(0,44);
+    h+='<div class="card" style="margin-bottom:16px"><h3>'+T('cloud')+hlp('temaer')+'</h3><p class="sub">'+T('cloudS')+'</p><div class="cloud">'
+      + cloud.map(function(k){
+          var hits=all.filter(function(x){ return x.txt.toLowerCase().indexOf(k.w)>=0; });
+          var sc=hits.filter(function(x){ return x.i!=null; });
+          var avg=sc.length? sc.reduce(function(a,b){return a+b.i;},0)/sc.length : null;
+          var size=13+Math.round(Math.pow(k.n/mx,.65)*21);
+          return '<span class="cw" data-kw="'+esc(k.w)+'" style="font-size:'+size+'px;color:'+(avg==null?'var(--mut)':idxColor(avg))+'"'
+            +' title="'+k.n+' ×'+(avg!=null? ' · '+T('idx',{n:f0(avg)}):'')+'">'+esc(k.w)+'</span>';
+        }).join('')
+      + '</div></div>';
     h+='<div class="card" style="margin-bottom:16px"><h3>'+T('themes')+hlp('temaer')+'</h3><p class="sub">'+T('themesS')+'</p>'
       + kws.slice(0,26).map(function(k){ return '<span class="kw" data-kw="'+esc(k.w)+'">'+esc(k.w)+' <b>'+k.n+'</b></span>'; }).join('')
       + '</div>';
@@ -2028,7 +2449,7 @@ function wireView(){
   var cq=document.getElementById('cq');
   if(cq) cq.addEventListener('input',function(){ CQ=cq.value; var p=cq.selectionStart; render(); var n=document.getElementById('cq'); if(n){n.focus(); n.setSelectionRange(p,p);} });
   var cf=document.getElementById('cfilt'); if(cf) cf.addEventListener('change',function(){ CFILT=cf.value; render(); });
-  document.querySelectorAll('.kw').forEach(function(k){ k.addEventListener('click',function(){ CQ=k.dataset.kw; render(); }); });
+  document.querySelectorAll('.kw,.cw').forEach(function(k){ k.addEventListener('click',function(){ CQ=k.dataset.kw; render(); }); });
 }
 document.querySelectorAll('#langsw button').forEach(function(b){
   b.addEventListener('click',function(){ setLang(b.dataset.l); });
@@ -2052,7 +2473,13 @@ document.getElementById('btnCopy').addEventListener('click',function(){
   var L=[];
   L.push('YOUR OPINION MATTERS — '+ds.label);
   L.push(T('kResp')+': '+rows.length+(rows.length!==ds.rows.length? ' ('+T('ofResp',{a:rows.length,b:ds.rows.length})+')':''));
-  L.push(T('kIndex')+': '+(oi?f1(oi.index):'–')+' / 100');
+  L.push(T('kIndex')+': '+(oi?f1(oi.index):'–')+' / 100  ('+T('target')+': '+TARGET+')');
+  var ins=insights(ds,rows);
+  if(ins.length){
+    L.push('');
+    L.push(T('takeaways').toUpperCase());
+    ins.forEach(function(x){ L.push('  · '+String(x.x).replace(/<[^>]+>/g,'')); });
+  }
   L.push('');
   L.push(T('avgPerQ').toUpperCase()+' ('+T('sIndex').toLowerCase()+' 0-100 | '+T('sAvg').toLowerCase()+')');
   items.forEach(function(x){ L.push('  '+(' '+f0(x.st.index)).slice(-3)+'   '+f1(x.st.avg)+'/'+x.st.scale+'  '+x.m.short+'  (n='+x.st.n+', '+f0(x.st.low)+'% '+T('colCrit').toLowerCase()+')'); });
