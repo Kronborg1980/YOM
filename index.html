@@ -541,17 +541,18 @@ var CORE = (function(){
   }
 
   /* Statistik for ét rating-spørgsmål på et sæt rækker */
-  function stat(rows, col, scale){
+  function stat(rows, col, scale, topAt){
+    var t=(topAt&&topAt>1)? topAt : scale;
     var sum=0,n=0,dist={},low=0,top=0;
     for(var i=0;i<rows.length;i++){
       var v=num(rows[i][col]); if(v===null) continue;
       n++; sum+=v; dist[v]=(dist[v]||0)+1;
       if(v<=2) low++;
-      if(v>=scale) top++;
+      if(v>=t) top++;
     }
     if(!n) return null;
     var avg=sum/n;
-    return { n:n, avg:avg, dist:dist, index:(avg-1)/(scale-1)*100, low:low/n*100, top:top/n*100, scale:scale };
+    return { n:n, avg:avg, dist:dist, index:(avg-1)/(scale-1)*100, low:low/n*100, top:top/n*100, scale:scale, topAt:t };
   }
 
   /* Samlet indeks pr. respondent (gennemsnit af alle normaliserede ratings) */
@@ -1143,9 +1144,10 @@ function refreshDerived(){
 
     // ambassadør / kritiker
     var rq=null; rs.forEach(function(m){ if(/recommend/i.test(m.col)) rq=m; });
+    var rqTop=topStep(rq);
     if(rq) add('__nps','dimNps',function(r){
       var v=CORE.num(r[rq.col]); if(v===null) return null;
-      return v>=rq.scale? T('npsPro') : v<=2? T('npsCri') : T('npsPas');
+      return v>=rqTop? T('npsPro') : v<=2? T('npsCri') : T('npsPas');
     },[T('npsPro'),T('npsPas'),T('npsCri')]);
   });
 }
@@ -1156,6 +1158,12 @@ function ratings(ds){ return ds.meta.filter(function(m){
   if(m.type==='rating') return !HIDDEN[m.k];
   return !!FORCE[m.k];
 }); }
+function topStep(m){
+  if(!m||!m.scale) return null;
+  var mx=m.max;
+  if(mx==null || !isFinite(mx) || mx>=m.scale) return m.scale;
+  return mx>=m.scale-1? mx : m.scale;   // højst ét trin under toppen
+}
 function candidates(ds){ return ds.meta.filter(function(m){ return m.candidate && m.n>3; }); }
 function dims(ds){ return ds.meta.filter(function(m){ return m.type==='cat' && m.n>=3 && m.uniq>1; }); }
 function texts(ds){ return ds.meta.filter(function(m){ return m.type==='text'; }); }
@@ -1369,7 +1377,7 @@ function bar(pct,color){
 }
 function distBar(st){
   var c=distColors(st.scale), h='<div class="dist">';
-  for(var i=1;i<=st.scale;i++){
+  for(var i=1;i<=(st.topAt||st.scale);i++){
     var v=(st.dist[i]||0)/st.n*100;
     if(v>0) h+='<i style="width:'+v+'%;background:'+c[i]+'" title="'+i+': '+(st.dist[i]||0)+' ('+f0(v)+'%)"></i>';
   }
@@ -1397,7 +1405,7 @@ function sortSelect(id){
 function qList(rows, rs, opts){
   opts=opts||{};
   var items=[];
-  rs.forEach(function(m){ var st=CORE.stat(rows,m.col,m.scale); if(st) items.push({m:m,st:st}); });
+  rs.forEach(function(m){ var st=CORE.stat(rows,m.col,m.scale,topStep(m)); if(st) items.push({m:m,st:st}); });
   if(opts.fixed) items.sort(function(a,b){ return (opts.asc?1:-1)*(b.st.index-a.st.index); });
   else sortItems(items,QSORT);
   if(opts.limit) items=items.slice(0,opts.limit);
@@ -1516,10 +1524,10 @@ function viewOverview(){
   if(!rows.length) return '<div class="empty">'+T('noRowsFilter')+'</div>';
 
   var oi=CORE.overallIndex(rows,rs);
-  var items=rs.map(function(m){ return {m:m, st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;});
+  var items=rs.map(function(m){ return {m:m, st:CORE.stat(rows,m.col,m.scale,topStep(m))}; }).filter(function(x){return x.st;});
   items.sort(function(a,b){ return b.st.index-a.st.index; });
   var rec=null; rs.forEach(function(m){ if(/recommend/i.test(m.col)) rec=m; });
-  var recSt = rec? CORE.stat(rows,rec.col,rec.scale) : null;
+  var recSt = rec? CORE.stat(rows,rec.col,rec.scale,topStep(rec)) : null;
 
   /* gæstestemning / sentiment */
   var sat={hi:0,mid:0,lo:0,bad:0}, scored=0;
@@ -1532,7 +1540,7 @@ function viewOverview(){
 
   /* kritiske svar samlet / overall critical share */
   var critN=0, critTot=0;
-  rs.forEach(function(m){ var st=CORE.stat(rows,m.col,m.scale); if(st){ critN+=st.low/100*st.n; critTot+=st.n; } });
+  rs.forEach(function(m){ var st=CORE.stat(rows,m.col,m.scale,topStep(m)); if(st){ critN+=st.low/100*st.n; critTot+=st.n; } });
   var critPct = critTot? critN/critTot*100 : 0;
 
   /* sammenligningsmærke fra andet datasæt / baseline mark */
@@ -1567,10 +1575,10 @@ function viewOverview(){
     + '</div>';
 
   if(recSt){
-    var pro=0,pas=0,cri=0;
+    var pro=0,pas=0,cri=0, recTop=topStep(rec);
     rows.forEach(function(r){
       var v=CORE.num(r[rec.col]); if(v===null) return;
-      if(v>=rec.scale) pro++; else if(v<=2) cri++; else pas++;
+      if(v>=recTop) pro++; else if(v<=2) cri++; else pas++;
     });
     h+='<div class="card"><h3>'+T('advocacy')+hlp('anbefale')+'</h3><p class="sub">'+esc(rec.short)+' · 1–'+rec.scale+'</p>'
       +'<div class="cwrap">'
@@ -1709,7 +1717,7 @@ function dimReport(ds, meta, title){
   h+='<div class="card"><h3>'+T('bestWorst')+hlp('stbedst')+'</h3><p class="sub">'+T('bestWorstS')+'</p>'
     +'<div class="tblwrap" style="max-height:none"><table><thead><tr><th class="stick">'+esc(title)+'</th><th>'+T('colResp')+hlp('n')+'</th><th>'+T('colBest')+'</th><th>'+T('colWorst')+'</th></tr></thead><tbody>';
   ranked.forEach(function(x){
-    var items=rs.map(function(m){ return {m:m,st:CORE.stat(g[x.nm],m.col,m.scale)}; })
+    var items=rs.map(function(m){ return {m:m,st:CORE.stat(g[x.nm],m.col,m.scale,topStep(m))}; })
                 .filter(function(z){ return z.st && z.st.n>=Math.max(3,Math.floor(MINN/2)); })
                 .sort(function(a,b){ return b.st.index-a.st.index; });
     if(!items.length) return;
@@ -1728,7 +1736,7 @@ function dimReport(ds, meta, title){
   return h;
 }
 function heatmap(rows, rs, g, names, lbl){
-  var items=rs.map(function(m){ return {m:m, st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;})
+  var items=rs.map(function(m){ return {m:m, st:CORE.stat(rows,m.col,m.scale,topStep(m))}; }).filter(function(x){return x.st;})
               .sort(function(a,b){ return a.st.index-b.st.index; });
   var h='<div class="tblwrap"><table><thead><tr><th class="stick">'+T('question')+hlp('heatmap')+'</th><th>'+T('total')+hlp('gns')+'</th>';
   names.forEach(function(nm){ h+='<th style="text-align:center">'+esc(lbl(nm))+'<br><span style="color:var(--dim);font-weight:500">n='+g[nm].length+'</span></th>'; });
@@ -1737,7 +1745,7 @@ function heatmap(rows, rs, g, names, lbl){
     h+='<tr><td class="stick" title="'+esc(it.m.label)+'">'+esc(it.m.short)+'</td>';
     h+='<td><span class="cell" style="background:'+idxColor(it.st.index)+'">'+f1(it.st.avg)+'</span></td>';
     names.forEach(function(nm){
-      var st=CORE.stat(g[nm],it.m.col,it.m.scale);
+      var st=CORE.stat(g[nm],it.m.col,it.m.scale,topStep(it.m));
       if(!st || st.n<Math.max(3,Math.floor(MINN/2))) h+='<td><span class="cell na">–</span></td>';
       else {
         var d=st.avg-it.st.avg;
@@ -1755,14 +1763,14 @@ function measureOf(rws, qm, rs, mode){
   // returnerer {v: talværdi, disp: tekst, idx: 0-100 til farve, n: antal}
   if(mode==='count'){ return {v:rws.length, disp:String(rws.length), idx:null, n:rws.length}; }
   if(qm){
-    var st=CORE.stat(rws,qm.col,qm.scale); if(!st) return null;
+    var st=CORE.stat(rws,qm.col,qm.scale,topStep(qm)); if(!st) return null;
     if(mode==='crit') return {v:st.low, disp:f0(st.low)+'%', idx:100-st.low*2.5, n:st.n};
     if(mode==='top')  return {v:st.top, disp:f0(st.top)+'%', idx:st.top, n:st.n};
     return {v:st.avg, disp:f1(st.avg), idx:st.index, n:st.n};
   }
   if(mode==='crit'||mode==='top'){
     var s=0,c=0;
-    rs.forEach(function(m){ var st=CORE.stat(rws,m.col,m.scale); if(st){ s+=(mode==='crit'?st.low:st.top); c++; } });
+    rs.forEach(function(m){ var st=CORE.stat(rws,m.col,m.scale,topStep(m)); if(st){ s+=(mode==='crit'?st.low:st.top); c++; } });
     if(!c) return null;
     var v=s/c;
     return {v:v, disp:f0(v)+'%', idx:(mode==='crit'? 100-v*2.5 : v), n:rws.length};
@@ -1904,7 +1912,7 @@ function driverData(ds, rows){
   rs.forEach(function(m){
     if(m.k===tq.k) return;
     var need=Math.max(15, Math.round(rows.length*0.12));
-    var st=CORE.stat(rows,m.col,m.scale); if(!st || st.n<need) return;
+    var st=CORE.stat(rows,m.col,m.scale,topStep(m)); if(!st || st.n<need) return;
     var c=corrOf(rows,m.col,tq.col); if(!c) return;
     out.push({m:m, st:st, r:Math.max(0,c.r), n:c.n});
   });
@@ -2061,7 +2069,7 @@ function insights(ds, rows){
   var rs=ratings(ds), out=[];
   if(!rs.length||!rows.length) return out;
   var oi=CORE.overallIndex(rows,rs);
-  var items=rs.map(function(m){ return {m:m,st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;})
+  var items=rs.map(function(m){ return {m:m,st:CORE.stat(rows,m.col,m.scale,topStep(m))}; }).filter(function(x){return x.st;})
               .sort(function(a,b){ return a.st.index-b.st.index; });
   if(!items.length) return out;
 
@@ -2122,7 +2130,7 @@ function insights(ds, rows){
       var drop=null;
       rs.forEach(function(m){
         var mm=matchMeta(base,m.k); if(!mm) return;
-        var a=CORE.stat(rowsOf(base),mm.col,mm.scale), b=CORE.stat(rows,m.col,m.scale);
+        var a=CORE.stat(rowsOf(base),mm.col,mm.scale,topStep(mm)), b=CORE.stat(rows,m.col,m.scale,topStep(m));
         if(!a||!b) return;
         var g2=b.index-a.index;
         if(g2<-3 && (!drop||g2<drop.g)) drop={q:m.short,g:g2};
@@ -2156,7 +2164,7 @@ function insightCards(ds, rows){
 /* ---------------- 6. Fokusområder / Focus ---------------- */
 function viewFocus(){
   var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
-  var items=rs.map(function(m){ return {m:m,st:CORE.stat(rows,m.col,m.scale)}; }).filter(function(x){return x.st;})
+  var items=rs.map(function(m){ return {m:m,st:CORE.stat(rows,m.col,m.scale,topStep(m))}; }).filter(function(x){return x.st;})
               .sort(function(a,b){ return a.st.index-b.st.index; });
   if(!items.length) return '<div class="empty">'+T('noData')+'</div>';
 
@@ -2180,7 +2188,7 @@ function viewFocus(){
     Object.keys(g).forEach(function(nm){
       if(g[nm].length<MINN) return;
       items.forEach(function(x){
-        var st=CORE.stat(g[nm],x.m.col,x.m.scale);
+        var st=CORE.stat(g[nm],x.m.col,x.m.scale,topStep(x.m));
         if(!st || st.n<MINN) return;
         var d=st.avg-x.st.avg;
         if(d<-0.35) gaps.push({dim:dim, nm:nm, q:x.m, d:d, avg:st.avg, base:x.st.avg, n:st.n, low:st.low});
@@ -2364,7 +2372,7 @@ function viewCompare(){
     DS.forEach(function(d){
       var mm=matchMeta(d,m.k);
       if(!mm || !mm.scale){ ok=false; return; }
-      var st=CORE.stat(rowsOf(d),mm.col,mm.scale);
+      var st=CORE.stat(rowsOf(d),mm.col,mm.scale,topStep(mm));
       entry.per.push(st);
       if(!st) ok=false;
     });
@@ -2468,7 +2476,7 @@ document.getElementById('btnCopy').addEventListener('click',function(){
   if(!DS.length) return;
   var ds=DS[ACTIVE], rows=rowsOf(ds), rs=ratings(ds);
   var oi=CORE.overallIndex(rows,rs);
-  var items=rs.map(function(m){return {m:m,st:CORE.stat(rows,m.col,m.scale)};}).filter(function(x){return x.st;})
+  var items=rs.map(function(m){return {m:m,st:CORE.stat(rows,m.col,m.scale,topStep(m))};}).filter(function(x){return x.st;})
               .sort(function(a,b){return b.st.index-a.st.index;});
   var L=[];
   L.push('YOUR OPINION MATTERS — '+ds.label);
@@ -2506,7 +2514,7 @@ document.getElementById('btnCsv').addEventListener('click',function(){
   var lines=[head.join(';')];
   function push(dimName2,grp,rws){
     rs.forEach(function(m){
-      var st=CORE.stat(rws,m.col,m.scale); if(!st) return;
+      var st=CORE.stat(rws,m.col,m.scale,topStep(m)); if(!st) return;
       lines.push([ds.label,dimName2,grp,m.short,f1(st.avg),st.scale,f1(st.index),st.n,f0(st.low),f0(st.top)]
         .map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(';'));
     });
